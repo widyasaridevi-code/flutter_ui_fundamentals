@@ -1,17 +1,84 @@
-# flutter_ui_fundamentals
+\# Learning Dashboard Flutter
 
-A new Flutter project.
 
-## Getting Started
 
-This project is a starting point for a Flutter application.
+Project praktikum Widget Flutter Fundamentals.
 
-A few resources to get you started if this is your first Flutter project:
 
-- [Learn Flutter](https://docs.flutter.dev/get-started/learn-flutter)
-- [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Flutter learning resources](https://docs.flutter.dev/reference/learning-resources)
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+\## Identitas Mahasiswa
+
+
+
+\- NIM: 2415051078
+
+\- Nama: Komang Widyasari Devi
+
+
+
+\## Deskripsi
+
+
+
+Aplikasi Learning Dashboard menampilkan identitas mahasiswa,
+
+profil, ringkasan materi, dan daftar course dari static JSON.
+
+
+
+\## Fitur
+
+
+
+\- MaterialApp dan Scaffold
+
+\- Profile mahasiswa
+
+\- Summary card
+
+\- Collection Dart
+
+\- ListView
+
+\- StatefulWidget dan setState
+
+\- Static JSON
+
+\- Future dan async/await
+
+\- FutureBuilder
+
+\- Loading dan error state
+
+\- Reusable widget/function
+
+\- Git version control
+
+
+
+\## Data
+
+
+
+Data course disimpan pada:
+
+
+
+assets/data/student\_data.json
+
+
+
+Aplikasi menggunakan data JSON untuk menampilkan daftar mata kuliah,
+
+kode course, jumlah SKS, status, dan kategori.
+
+
+
+\## Student
+
+
+
+NIM: 2415051078
+
+Nama: Komang Widyasari Devi
+
