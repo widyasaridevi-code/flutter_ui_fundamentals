@@ -164,9 +164,8 @@ Widget buildProfileCard(
         children: [
           const CircleAvatar(
             radius: 36,
-            child: Icon(
-              Icons.person,
-              size: 40,
+            backgroundImage: AssetImage(
+              'assets/images/profile.jpg',
             ),
           ),
           const SizedBox(width: 16),
