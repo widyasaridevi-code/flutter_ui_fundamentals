@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'course_state.dart';
+import 'models/course.dart';
 
 const String studentName = 'Komang Widyasari Devi';
 const String studentId = '2415051078';
@@ -33,58 +34,58 @@ class MyApp extends StatelessWidget {
 }
 
 // =====================================================
-// DATA COURSE
+// TAHAP 8: MODEL COURSE DAN PARSING DATA
 // =====================================================
 
-const List<Map<String, dynamic>> courses = [
-  {
+final List<Course> courses = [
+  Course.fromJson({
     'title': 'Flutter Dasar',
     'code': 'FL001',
     'credits': 3,
     'status': 'Aktif',
     'description':
         'Mempelajari dasar Flutter, widget, dan struktur aplikasi.',
-  },
-  {
+  }),
+  Course.fromJson({
     'title': 'Dart Programming',
     'code': 'DT001',
     'credits': 3,
     'status': 'Aktif',
     'description':
         'Mempelajari dasar pemrograman menggunakan bahasa Dart.',
-  },
-  {
+  }),
+  Course.fromJson({
     'title': 'Responsive Layout',
     'code': 'RL001',
     'credits': 2,
     'status': 'Aktif',
     'description':
         'Membuat tampilan aplikasi yang menyesuaikan ukuran layar.',
-  },
-  {
+  }),
+  Course.fromJson({
     'title': 'Mobile UI Design',
     'code': 'UI001',
     'credits': 2,
     'status': 'Aktif',
     'description':
         'Mempelajari prinsip dasar desain antarmuka aplikasi mobile.',
-  },
-  {
+  }),
+  Course.fromJson({
     'title': 'Navigation',
     'code': 'NV001',
     'credits': 2,
     'status': 'Aktif',
     'description':
         'Membuat perpindahan halaman dan navigasi aplikasi Flutter.',
-  },
-  {
+  }),
+  Course.fromJson({
     'title': 'User Interaction',
     'code': 'IN001',
     'credits': 2,
     'status': 'Aktif',
     'description':
         'Menangani tap, button, gesture, form, dan feedback pengguna.',
-  },
+  }),
 ];
 
 // =====================================================
@@ -336,9 +337,7 @@ class CoursesPage extends StatefulWidget {
 }
 
 class _CoursesPageState extends State<CoursesPage> {
-  Future<void> openCourseDetail(
-    Map<String, dynamic> course,
-  ) async {
+  Future<void> openCourseDetail(Course course) async {
     await Navigator.push(
       context,
       MaterialPageRoute(
@@ -350,10 +349,10 @@ class _CoursesPageState extends State<CoursesPage> {
   }
 
   Widget buildCourseCard(
-    Map<String, dynamic> course,
+    Course course,
     bool isFavorite,
   ) {
-    final String courseCode = course['code'] as String;
+    final String courseCode = course.code;
 
     return Card(
       child: InkWell(
@@ -365,7 +364,7 @@ class _CoursesPageState extends State<CoursesPage> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(
-                '${course['title']} - $courseCode',
+                '${course.title} - $courseCode',
               ),
             ),
           );
@@ -386,7 +385,6 @@ class _CoursesPageState extends State<CoursesPage> {
                         ? 'Hapus dari favorite'
                         : 'Tambah ke favorite',
                     onPressed: () {
-                      // read: menjalankan aksi pada Provider.
                       context
                           .read<CourseState>()
                           .toggleFavorite(courseCode);
@@ -402,7 +400,7 @@ class _CoursesPageState extends State<CoursesPage> {
               ),
               const SizedBox(height: 12),
               Text(
-                course['title'] as String,
+                course.title,
                 style: const TextStyle(
                   fontSize: 19,
                   fontWeight: FontWeight.bold,
@@ -410,11 +408,11 @@ class _CoursesPageState extends State<CoursesPage> {
               ),
               const SizedBox(height: 6),
               Text(
-                '$courseCode • ${course['credits']} SKS',
+                '$courseCode • ${course.credits} SKS',
               ),
               const SizedBox(height: 8),
               Text(
-                course['description'] as String,
+                course.description,
                 maxLines: 3,
                 overflow: TextOverflow.ellipsis,
               ),
@@ -437,7 +435,6 @@ class _CoursesPageState extends State<CoursesPage> {
 
   @override
   Widget build(BuildContext context) {
-    // watch: CoursesPage mengikuti perubahan data favorit.
     final courseState = context.watch<CourseState>();
 
     return Scaffold(
@@ -493,11 +490,10 @@ class _CoursesPageState extends State<CoursesPage> {
                   ),
                   itemBuilder: (context, index) {
                     final course = courses[index];
-                    final code = course['code'] as String;
 
                     return buildCourseCard(
                       course,
-                      courseState.isFavorite(code),
+                      courseState.isFavorite(course.code),
                     );
                   },
                 ),
@@ -516,7 +512,7 @@ class _CoursesPageState extends State<CoursesPage> {
 // =====================================================
 
 class CourseDetailPage extends StatelessWidget {
-  final Map<String, dynamic> course;
+  final Course course;
 
   const CourseDetailPage({
     super.key,
@@ -525,7 +521,7 @@ class CourseDetailPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final String courseCode = course['code'] as String;
+    final String courseCode = course.code;
 
     return Scaffold(
       appBar: AppBar(
@@ -546,7 +542,7 @@ class CourseDetailPage extends StatelessWidget {
             ),
             const SizedBox(height: 24),
             Text(
-              course['title'] as String,
+              course.title,
               style: const TextStyle(
                 fontSize: 30,
                 fontWeight: FontWeight.bold,
@@ -559,22 +555,21 @@ class CourseDetailPage extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             Text(
-              'Credits: ${course['credits']} SKS',
+              'Credits: ${course.credits} SKS',
               style: const TextStyle(fontSize: 18),
             ),
             const SizedBox(height: 8),
             Text(
-              'Status: ${course['status']}',
+              'Status: ${course.status}',
               style: const TextStyle(fontSize: 18),
             ),
             const SizedBox(height: 20),
             Text(
-              course['description'] as String,
+              course.description,
               style: const TextStyle(fontSize: 17),
             ),
             const SizedBox(height: 24),
 
-            // Consumer memperbarui status favorit secara otomatis.
             Consumer<CourseState>(
               builder: (context, state, child) {
                 final isFavorite =
@@ -600,7 +595,6 @@ class CourseDetailPage extends StatelessWidget {
             ),
             const SizedBox(height: 16),
 
-            // Consumer membuat tombol mengikuti status terbaru.
             Consumer<CourseState>(
               builder: (context, state, child) {
                 final isFavorite =
@@ -670,7 +664,6 @@ class ProfilePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // watch digunakan agar Profile mengikuti jumlah favorit.
     final courseState = context.watch<CourseState>();
 
     return Scaffold(
