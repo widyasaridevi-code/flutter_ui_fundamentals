@@ -197,7 +197,7 @@ class _ResponsiveShellState extends State<ResponsiveShell> {
 }
 
 // =====================================================
-// REUSABLE WIDGET 1: STUDENT IDENTITY
+// REUSABLE WIDGET: STUDENT IDENTITY
 // =====================================================
 
 class StudentIdentity extends StatelessWidget {
@@ -210,6 +210,39 @@ class StudentIdentity extends StatelessWidget {
       style: TextStyle(
         fontSize: 16,
         fontWeight: FontWeight.bold,
+      ),
+    );
+  }
+}
+
+// =====================================================
+// REUSABLE WIDGET: COURSE INFO CARD
+// =====================================================
+
+class CourseInfoCard extends StatelessWidget {
+  final String title;
+  final String description;
+  final IconData icon;
+
+  const CourseInfoCard({
+    super.key,
+    required this.title,
+    required this.description,
+    required this.icon,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      child: ListTile(
+        leading: Icon(icon, size: 32),
+        title: Text(
+          title,
+          style: const TextStyle(
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        subtitle: Text(description),
       ),
     );
   }
@@ -274,6 +307,10 @@ class HomePage extends StatelessWidget {
                   'Tersedia form feedback dengan validasi.',
               icon: Icons.feedback,
             ),
+
+            // TAHAP 4: DEMO VALUENOTIFIER
+            const SizedBox(height: 24),
+            const ValueNotifierDemo(),
           ],
         ),
       ),
@@ -282,44 +319,8 @@ class HomePage extends StatelessWidget {
 }
 
 // =====================================================
-// REUSABLE WIDGET 2: COURSE INFO CARD
-// =====================================================
-
-class CourseInfoCard extends StatelessWidget {
-  final String title;
-  final String description;
-  final IconData icon;
-
-  const CourseInfoCard({
-    super.key,
-    required this.title,
-    required this.description,
-    required this.icon,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      child: ListTile(
-        leading: Icon(
-          icon,
-          size: 32,
-        ),
-        title: Text(
-          title,
-          style: const TextStyle(
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        subtitle: Text(description),
-      ),
-    );
-  }
-}
-
-// =====================================================
 // TAHAP 3: COURSES PAGE
-// PARENT / SINGLE SOURCE OF TRUTH
+// SINGLE SOURCE OF TRUTH
 // =====================================================
 
 class CoursesPage extends StatefulWidget {
@@ -330,15 +331,12 @@ class CoursesPage extends StatefulWidget {
 }
 
 class _CoursesPageState extends State<CoursesPage> {
-  // Satu sumber data favorite untuk halaman Courses
-  // dan Course Detail.
   final Set<String> favoriteCourses = {};
 
   bool isCourseFavorite(String courseCode) {
     return favoriteCourses.contains(courseCode);
   }
 
-  // Parent bertanggung jawab mengubah state.
   void toggleFavorite(String courseCode) {
     setState(() {
       if (favoriteCourses.contains(courseCode)) {
@@ -359,11 +357,7 @@ class _CoursesPageState extends State<CoursesPage> {
       MaterialPageRoute(
         builder: (_) => CourseDetailPage(
           course: course,
-
-          // Mengirim pembaca status favorite ke child.
           isFavorite: () => isCourseFavorite(courseCode),
-
-          // Mengirim callback perubahan ke child.
           onFavoriteChanged: () {
             toggleFavorite(courseCode);
           },
@@ -373,7 +367,6 @@ class _CoursesPageState extends State<CoursesPage> {
 
     if (!mounted) return;
 
-    // Memperbarui daftar setelah kembali dari detail.
     setState(() {});
   }
 
@@ -527,17 +520,11 @@ class _CoursesPageState extends State<CoursesPage> {
 
 // =====================================================
 // TAHAP 3: COURSE DETAIL PAGE
-// CHILD / MENERIMA STATE DAN CALLBACK
 // =====================================================
 
 class CourseDetailPage extends StatefulWidget {
   final Map<String, dynamic> course;
-
-  // Membaca status terkini dari parent.
-  // Tidak menyimpan salinan bool isFavorite.
   final bool Function() isFavorite;
-
-  // Callback untuk meminta parent mengubah state.
   final VoidCallback onFavoriteChanged;
 
   const CourseDetailPage({
@@ -555,11 +542,8 @@ class CourseDetailPage extends StatefulWidget {
 class _CourseDetailPageState
     extends State<CourseDetailPage> {
   void toggleFavorite() {
-    // Meminta parent mengubah sumber state.
     widget.onFavoriteChanged();
 
-    // Membangun ulang tampilan detail.
-    // Status tetap dibaca dari parent.
     setState(() {});
 
     ScaffoldMessenger.of(context).showSnackBar(
@@ -576,8 +560,6 @@ class _CourseDetailPageState
   @override
   Widget build(BuildContext context) {
     final course = widget.course;
-
-    // Selalu membaca status terkini dari parent.
     final bool isFavorite = widget.isFavorite();
 
     return Scaffold(
@@ -747,7 +729,6 @@ class FeedbackPage extends StatefulWidget {
 
 class _FeedbackPageState extends State<FeedbackPage> {
   final formKey = GlobalKey<FormState>();
-
   final commentController = TextEditingController();
 
   bool isLoading = false;
@@ -878,6 +859,99 @@ class _FeedbackPageState extends State<FeedbackPage> {
                 ),
             ],
           ),
+        ),
+      ),
+    );
+  }
+}
+
+// =====================================================
+// TAHAP 4: VALUENOTIFIER DAN VALUELISTENABLEBUILDER
+// =====================================================
+
+class ValueNotifierDemo extends StatefulWidget {
+  const ValueNotifierDemo({super.key});
+
+  @override
+  State<ValueNotifierDemo> createState() =>
+      _ValueNotifierDemoState();
+}
+
+class _ValueNotifierDemoState
+    extends State<ValueNotifierDemo> {
+  // Menyimpan satu nilai sederhana yang dipantau.
+  final ValueNotifier<int> counter = ValueNotifier<int>(0);
+
+  @override
+  void dispose() {
+    counter.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Demo ValueNotifier',
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 8),
+            const Text(
+              'Contoh state sederhana tanpa setState '
+              'untuk memperbarui nilai counter.',
+            ),
+            const SizedBox(height: 16),
+
+            ValueListenableBuilder<int>(
+              valueListenable: counter,
+              builder: (context, value, child) {
+                return Center(
+                  child: Text(
+                    'Nilai Counter: $value',
+                    style: const TextStyle(
+                      fontSize: 28,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                );
+              },
+            ),
+
+            const SizedBox(height: 16),
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton.icon(
+                    onPressed: () {
+                      if (counter.value > 0) {
+                        counter.value--;
+                      }
+                    },
+                    icon: const Icon(Icons.remove),
+                    label: const Text('Kurangi'),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: ElevatedButton.icon(
+                    onPressed: () {
+                      counter.value++;
+                    },
+                    icon: const Icon(Icons.add),
+                    label: const Text('Tambah'),
+                  ),
+                ),
+              ],
+            ),
+          ],
         ),
       ),
     );
