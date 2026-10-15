@@ -1,11 +1,17 @@
-
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'course_state.dart';
 
 const String studentName = 'Komang Widyasari Devi';
 const String studentId = '2415051078';
 
 void main() {
-  runApp(const MyApp());
+  runApp(
+    ChangeNotifierProvider(
+      create: (_) => CourseState(),
+      child: const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -307,8 +313,6 @@ class HomePage extends StatelessWidget {
                   'Tersedia form feedback dengan validasi.',
               icon: Icons.feedback,
             ),
-
-            // TAHAP 4: DEMO VALUENOTIFIER
             const SizedBox(height: 24),
             const ValueNotifierDemo(),
           ],
@@ -723,8 +727,7 @@ class FeedbackPage extends StatefulWidget {
   const FeedbackPage({super.key});
 
   @override
-  State<FeedbackPage> createState() =>
-      _FeedbackPageState();
+  State<FeedbackPage> createState() => _FeedbackPageState();
 }
 
 class _FeedbackPageState extends State<FeedbackPage> {
@@ -879,7 +882,6 @@ class ValueNotifierDemo extends StatefulWidget {
 
 class _ValueNotifierDemoState
     extends State<ValueNotifierDemo> {
-  // Menyimpan satu nilai sederhana yang dipantau.
   final ValueNotifier<int> counter = ValueNotifier<int>(0);
 
   @override
@@ -909,7 +911,6 @@ class _ValueNotifierDemoState
               'untuk memperbarui nilai counter.',
             ),
             const SizedBox(height: 16),
-
             ValueListenableBuilder<int>(
               valueListenable: counter,
               builder: (context, value, child) {
@@ -924,7 +925,6 @@ class _ValueNotifierDemoState
                 );
               },
             ),
-
             const SizedBox(height: 16),
             Row(
               children: [
