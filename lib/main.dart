@@ -1,3 +1,4 @@
+
 import 'package:flutter/material.dart';
 
 const String studentName = 'Komang Widyasari Devi';
@@ -87,7 +88,8 @@ class ResponsiveShell extends StatefulWidget {
   const ResponsiveShell({super.key});
 
   @override
-  State<ResponsiveShell> createState() => _ResponsiveShellState();
+  State<ResponsiveShell> createState() =>
+      _ResponsiveShellState();
 }
 
 class _ResponsiveShellState extends State<ResponsiveShell> {
@@ -232,16 +234,12 @@ class HomePage extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const StudentIdentity(),
-
             const SizedBox(height: 32),
-
             const Icon(
               Icons.school,
               size: 80,
             ),
-
             const SizedBox(height: 20),
-
             const Text(
               'Course Explorer',
               style: TextStyle(
@@ -249,9 +247,7 @@ class HomePage extends StatelessWidget {
                 fontWeight: FontWeight.bold,
               ),
             ),
-
             const SizedBox(height: 12),
-
             const Text(
               'Aplikasi sederhana untuk menjelajahi '
               'daftar course mahasiswa.',
@@ -259,27 +255,21 @@ class HomePage extends StatelessWidget {
                 fontSize: 18,
               ),
             ),
-
             const SizedBox(height: 24),
-
             const CourseInfoCard(
               title: 'Responsive',
               description:
                   'Tampilan menyesuaikan ukuran layar.',
               icon: Icons.devices,
             ),
-
             const SizedBox(height: 12),
-
             const CourseInfoCard(
               title: 'Interactive',
               description:
                   'Course dapat dipilih dan diberi favorite.',
               icon: Icons.touch_app,
             ),
-
             const SizedBox(height: 12),
-
             const CourseInfoCard(
               title: 'Feedback',
               description:
@@ -353,8 +343,10 @@ class _CoursesPageState extends State<CoursesPage> {
     });
   }
 
-  void openCourseDetail(Map<String, dynamic> course) {
-    Navigator.push(
+  Future<void> openCourseDetail(
+    Map<String, dynamic> course,
+  ) async {
+    await Navigator.push(
       context,
       MaterialPageRoute(
         builder: (_) => CourseDetailPage(
@@ -363,11 +355,15 @@ class _CoursesPageState extends State<CoursesPage> {
             course['code'],
           ),
           onFavoriteChanged: () {
-            toggleFavorite(course['code']);
+            toggleFavorite(course['code'] as String);
           },
         ),
       ),
     );
+
+    if (!mounted) return;
+
+    setState(() {});
   }
 
   Widget buildCourseCard(Map<String, dynamic> course) {
@@ -393,20 +389,19 @@ class _CoursesPageState extends State<CoursesPage> {
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: Column(
-            crossAxisAlignment:
-                CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
                 children: [
                   const CircleAvatar(
                     child: Icon(Icons.school),
                   ),
-
                   const Spacer(),
-
                   IconButton(
                     onPressed: () {
-                      toggleFavorite(course['code']);
+                      toggleFavorite(
+                        course['code'] as String,
+                      );
                     },
                     icon: Icon(
                       isFavorite
@@ -416,28 +411,22 @@ class _CoursesPageState extends State<CoursesPage> {
                   ),
                 ],
               ),
-
               const SizedBox(height: 12),
-
               Text(
-                course['title'],
+                course['title'] as String,
                 style: const TextStyle(
                   fontSize: 19,
                   fontWeight: FontWeight.bold,
                 ),
               ),
-
               const SizedBox(height: 6),
-
               Text(
                 '${course['code']} • '
                 '${course['credits']} SKS',
               ),
-
               const SizedBox(height: 8),
-
               Text(
-                course['description'],
+                course['description'] as String,
                 maxLines: 3,
                 overflow: TextOverflow.ellipsis,
               ),
@@ -469,13 +458,10 @@ class _CoursesPageState extends State<CoursesPage> {
           return SingleChildScrollView(
             padding: const EdgeInsets.all(16),
             child: Column(
-              crossAxisAlignment:
-                  CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const StudentIdentity(),
-
                 const SizedBox(height: 24),
-
                 const Text(
                   'Daftar Course',
                   style: TextStyle(
@@ -483,9 +469,7 @@ class _CoursesPageState extends State<CoursesPage> {
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-
                 const SizedBox(height: 16),
-
                 GridView.builder(
                   shrinkWrap: true,
                   physics:
@@ -573,68 +557,53 @@ class _CourseDetailPageState
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
         child: Column(
-          crossAxisAlignment:
-              CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const StudentIdentity(),
-
             const SizedBox(height: 32),
-
             const Center(
               child: Icon(
                 Icons.school,
                 size: 90,
               ),
             ),
-
             const SizedBox(height: 24),
-
             Text(
-              course['title'],
+              course['title'] as String,
               style: const TextStyle(
                 fontSize: 30,
                 fontWeight: FontWeight.bold,
               ),
             ),
-
             const SizedBox(height: 16),
-
             Text(
               'Code: ${course['code']}',
               style: const TextStyle(
                 fontSize: 18,
               ),
             ),
-
             const SizedBox(height: 8),
-
             Text(
               'Credits: ${course['credits']} SKS',
               style: const TextStyle(
                 fontSize: 18,
               ),
             ),
-
             const SizedBox(height: 8),
-
             Text(
               'Status: ${course['status']}',
               style: const TextStyle(
                 fontSize: 18,
               ),
             ),
-
             const SizedBox(height: 20),
-
             Text(
-              course['description'],
+              course['description'] as String,
               style: const TextStyle(
                 fontSize: 17,
               ),
             ),
-
             const SizedBox(height: 24),
-
             SizedBox(
               width: double.infinity,
               child: ElevatedButton.icon(
@@ -651,9 +620,7 @@ class _CourseDetailPageState
                 ),
               ),
             ),
-
             const SizedBox(height: 12),
-
             SizedBox(
               width: double.infinity,
               child: OutlinedButton(
@@ -688,9 +655,7 @@ class ProfilePage extends StatelessWidget {
         child: Column(
           children: [
             const StudentIdentity(),
-
             const SizedBox(height: 32),
-
             const CircleAvatar(
               radius: 55,
               child: Icon(
@@ -698,9 +663,7 @@ class ProfilePage extends StatelessWidget {
                 size: 60,
               ),
             ),
-
             const SizedBox(height: 24),
-
             const Text(
               'Profile Mahasiswa',
               style: TextStyle(
@@ -708,9 +671,7 @@ class ProfilePage extends StatelessWidget {
                 fontWeight: FontWeight.bold,
               ),
             ),
-
             const SizedBox(height: 24),
-
             const Card(
               child: ListTile(
                 leading: Icon(Icons.person),
@@ -718,9 +679,7 @@ class ProfilePage extends StatelessWidget {
                 subtitle: Text(studentName),
               ),
             ),
-
             const SizedBox(height: 12),
-
             const Card(
               child: ListTile(
                 leading: Icon(Icons.badge),
@@ -747,12 +706,10 @@ class FeedbackPage extends StatefulWidget {
       _FeedbackPageState();
 }
 
-class _FeedbackPageState
-    extends State<FeedbackPage> {
+class _FeedbackPageState extends State<FeedbackPage> {
   final formKey = GlobalKey<FormState>();
 
-  final commentController =
-      TextEditingController();
+  final commentController = TextEditingController();
 
   bool isLoading = false;
 
@@ -801,13 +758,10 @@ class _FeedbackPageState
         child: Form(
           key: formKey,
           child: Column(
-            crossAxisAlignment:
-                CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const StudentIdentity(),
-
               const SizedBox(height: 24),
-
               const Text(
                 'Form Feedback',
                 style: TextStyle(
@@ -815,9 +769,7 @@ class _FeedbackPageState
                   fontWeight: FontWeight.bold,
                 ),
               ),
-
               const SizedBox(height: 20),
-
               TextFormField(
                 initialValue: studentName,
                 decoration: const InputDecoration(
@@ -833,9 +785,7 @@ class _FeedbackPageState
                   return null;
                 },
               ),
-
               const SizedBox(height: 16),
-
               TextFormField(
                 initialValue: studentId,
                 decoration: const InputDecoration(
@@ -851,9 +801,7 @@ class _FeedbackPageState
                   return null;
                 },
               ),
-
               const SizedBox(height: 16),
-
               TextFormField(
                 controller: commentController,
                 maxLines: 5,
@@ -876,24 +824,17 @@ class _FeedbackPageState
                   return null;
                 },
               ),
-
               const SizedBox(height: 20),
-
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton.icon(
-                  onPressed: isLoading
-                      ? null
-                      : submitFeedback,
+                  onPressed:
+                      isLoading ? null : submitFeedback,
                   icon: const Icon(Icons.send),
-                  label: const Text(
-                    'Kirim Feedback',
-                  ),
+                  label: const Text('Kirim Feedback'),
                 ),
               ),
-
               const SizedBox(height: 24),
-
               if (isLoading)
                 const Center(
                   child: CircularProgressIndicator(),
