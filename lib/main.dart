@@ -197,7 +197,7 @@ class _ResponsiveShellState extends State<ResponsiveShell> {
 }
 
 // =====================================================
-// REUSABLE WIDGET 1
+// REUSABLE WIDGET 1: STUDENT IDENTITY
 // =====================================================
 
 class StudentIdentity extends StatelessWidget {
@@ -251,9 +251,7 @@ class HomePage extends StatelessWidget {
             const Text(
               'Aplikasi sederhana untuk menjelajahi '
               'daftar course mahasiswa.',
-              style: TextStyle(
-                fontSize: 18,
-              ),
+              style: TextStyle(fontSize: 18),
             ),
             const SizedBox(height: 24),
             const CourseInfoCard(
@@ -284,7 +282,7 @@ class HomePage extends StatelessWidget {
 }
 
 // =====================================================
-// REUSABLE WIDGET 2
+// REUSABLE WIDGET 2: COURSE INFO CARD
 // =====================================================
 
 class CourseInfoCard extends StatelessWidget {
@@ -320,7 +318,8 @@ class CourseInfoCard extends StatelessWidget {
 }
 
 // =====================================================
-// COURSES PAGE
+// TAHAP 3: COURSES PAGE
+// PARENT / SINGLE SOURCE OF TRUTH
 // =====================================================
 
 class CoursesPage extends StatefulWidget {
@@ -331,8 +330,15 @@ class CoursesPage extends StatefulWidget {
 }
 
 class _CoursesPageState extends State<CoursesPage> {
+  // Satu sumber data favorite untuk halaman Courses
+  // dan Course Detail.
   final Set<String> favoriteCourses = {};
 
+  bool isCourseFavorite(String courseCode) {
+    return favoriteCourses.contains(courseCode);
+  }
+
+  // Parent bertanggung jawab mengubah state.
   void toggleFavorite(String courseCode) {
     setState(() {
       if (favoriteCourses.contains(courseCode)) {
@@ -346,16 +352,20 @@ class _CoursesPageState extends State<CoursesPage> {
   Future<void> openCourseDetail(
     Map<String, dynamic> course,
   ) async {
+    final String courseCode = course['code'] as String;
+
     await Navigator.push(
       context,
       MaterialPageRoute(
         builder: (_) => CourseDetailPage(
           course: course,
-          isFavorite: favoriteCourses.contains(
-            course['code'],
-          ),
+
+          // Mengirim pembaca status favorite ke child.
+          isFavorite: () => isCourseFavorite(courseCode),
+
+          // Mengirim callback perubahan ke child.
           onFavoriteChanged: () {
-            toggleFavorite(course['code'] as String);
+            toggleFavorite(courseCode);
           },
         ),
       ),
@@ -363,13 +373,15 @@ class _CoursesPageState extends State<CoursesPage> {
 
     if (!mounted) return;
 
+    // Memperbarui daftar setelah kembali dari detail.
     setState(() {});
   }
 
-  Widget buildCourseCard(Map<String, dynamic> course) {
-    final isFavorite = favoriteCourses.contains(
-      course['code'],
-    );
+  Widget buildCourseCard(
+    Map<String, dynamic> course,
+  ) {
+    final String courseCode = course['code'] as String;
+    final bool isFavorite = isCourseFavorite(courseCode);
 
     return Card(
       child: InkWell(
@@ -381,7 +393,7 @@ class _CoursesPageState extends State<CoursesPage> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(
-                '${course['title']} - ${course['code']}',
+                '${course['title']} - $courseCode',
               ),
             ),
           );
@@ -398,15 +410,17 @@ class _CoursesPageState extends State<CoursesPage> {
                   ),
                   const Spacer(),
                   IconButton(
+                    tooltip: isFavorite
+                        ? 'Hapus dari favorite'
+                        : 'Tambah ke favorite',
                     onPressed: () {
-                      toggleFavorite(
-                        course['code'] as String,
-                      );
+                      toggleFavorite(courseCode);
                     },
                     icon: Icon(
                       isFavorite
                           ? Icons.favorite
                           : Icons.favorite_border,
+                      color: isFavorite ? Colors.red : null,
                     ),
                   ),
                 ],
@@ -421,14 +435,23 @@ class _CoursesPageState extends State<CoursesPage> {
               ),
               const SizedBox(height: 6),
               Text(
-                '${course['code']} • '
-                '${course['credits']} SKS',
+                '$courseCode • ${course['credits']} SKS',
               ),
               const SizedBox(height: 8),
               Text(
                 course['description'] as String,
                 maxLines: 3,
                 overflow: TextOverflow.ellipsis,
+              ),
+              const SizedBox(height: 8),
+              Text(
+                isFavorite
+                    ? 'Status: Favorite'
+                    : 'Status: Belum favorite',
+                style: TextStyle(
+                  color: isFavorite ? Colors.red : null,
+                  fontWeight: FontWeight.w500,
+                ),
               ),
             ],
           ),
@@ -470,6 +493,13 @@ class _CoursesPageState extends State<CoursesPage> {
                   ),
                 ),
                 const SizedBox(height: 16),
+                Text(
+                  'Total favorite: ${favoriteCourses.length}',
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 12),
                 GridView.builder(
                   shrinkWrap: true,
                   physics:
@@ -483,9 +513,7 @@ class _CoursesPageState extends State<CoursesPage> {
                     childAspectRatio: 1.35,
                   ),
                   itemBuilder: (context, index) {
-                    return buildCourseCard(
-                      courses[index],
-                    );
+                    return buildCourseCard(courses[index]);
                   },
                 ),
               ],
@@ -498,12 +526,18 @@ class _CoursesPageState extends State<CoursesPage> {
 }
 
 // =====================================================
-// COURSE DETAIL PAGE
+// TAHAP 3: COURSE DETAIL PAGE
+// CHILD / MENERIMA STATE DAN CALLBACK
 // =====================================================
 
 class CourseDetailPage extends StatefulWidget {
   final Map<String, dynamic> course;
-  final bool isFavorite;
+
+  // Membaca status terkini dari parent.
+  // Tidak menyimpan salinan bool isFavorite.
+  final bool Function() isFavorite;
+
+  // Callback untuk meminta parent mengubah state.
   final VoidCallback onFavoriteChanged;
 
   const CourseDetailPage({
@@ -520,25 +554,18 @@ class CourseDetailPage extends StatefulWidget {
 
 class _CourseDetailPageState
     extends State<CourseDetailPage> {
-  late bool isFavorite;
-
-  @override
-  void initState() {
-    super.initState();
-    isFavorite = widget.isFavorite;
-  }
-
   void toggleFavorite() {
+    // Meminta parent mengubah sumber state.
     widget.onFavoriteChanged();
 
-    setState(() {
-      isFavorite = !isFavorite;
-    });
+    // Membangun ulang tampilan detail.
+    // Status tetap dibaca dari parent.
+    setState(() {});
 
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
-          isFavorite
+          widget.isFavorite()
               ? 'Course ditambahkan ke favorite.'
               : 'Course dihapus dari favorite.',
         ),
@@ -549,6 +576,9 @@ class _CourseDetailPageState
   @override
   Widget build(BuildContext context) {
     final course = widget.course;
+
+    // Selalu membaca status terkini dari parent.
+    final bool isFavorite = widget.isFavorite();
 
     return Scaffold(
       appBar: AppBar(
@@ -578,32 +608,41 @@ class _CourseDetailPageState
             const SizedBox(height: 16),
             Text(
               'Code: ${course['code']}',
-              style: const TextStyle(
-                fontSize: 18,
-              ),
+              style: const TextStyle(fontSize: 18),
             ),
             const SizedBox(height: 8),
             Text(
               'Credits: ${course['credits']} SKS',
-              style: const TextStyle(
-                fontSize: 18,
-              ),
+              style: const TextStyle(fontSize: 18),
             ),
             const SizedBox(height: 8),
             Text(
               'Status: ${course['status']}',
-              style: const TextStyle(
-                fontSize: 18,
-              ),
+              style: const TextStyle(fontSize: 18),
             ),
             const SizedBox(height: 20),
             Text(
               course['description'] as String,
-              style: const TextStyle(
-                fontSize: 17,
-              ),
+              style: const TextStyle(fontSize: 17),
             ),
             const SizedBox(height: 24),
+            Card(
+              child: ListTile(
+                leading: Icon(
+                  isFavorite
+                      ? Icons.favorite
+                      : Icons.favorite_border,
+                  color: isFavorite ? Colors.red : null,
+                ),
+                title: const Text('Status Favorite'),
+                subtitle: Text(
+                  isFavorite
+                      ? 'Course ini sudah menjadi favorite.'
+                      : 'Course ini belum menjadi favorite.',
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
             SizedBox(
               width: double.infinity,
               child: ElevatedButton.icon(
@@ -615,7 +654,7 @@ class _CourseDetailPageState
                 ),
                 label: Text(
                   isFavorite
-                      ? 'Favorite'
+                      ? 'Hapus Favorite'
                       : 'Tambah Favorite',
                 ),
               ),
@@ -740,9 +779,7 @@ class _FeedbackPageState extends State<FeedbackPage> {
 
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
-        content: Text(
-          'Feedback berhasil dikirim.',
-        ),
+        content: Text('Feedback berhasil dikirim.'),
       ),
     );
   }
