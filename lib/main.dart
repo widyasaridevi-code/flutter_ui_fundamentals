@@ -1,3 +1,4 @@
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'course_state.dart';
@@ -323,8 +324,8 @@ class HomePage extends StatelessWidget {
 }
 
 // =====================================================
-// TAHAP 3: COURSES PAGE
-// SINGLE SOURCE OF TRUTH
+// TAHAP 3 & 7: COURSES PAGE
+// FAVORITE DIKELOLA OLEH PROVIDER
 // =====================================================
 
 class CoursesPage extends StatefulWidget {
@@ -335,50 +336,24 @@ class CoursesPage extends StatefulWidget {
 }
 
 class _CoursesPageState extends State<CoursesPage> {
-  final Set<String> favoriteCourses = {};
-
-  bool isCourseFavorite(String courseCode) {
-    return favoriteCourses.contains(courseCode);
-  }
-
-  void toggleFavorite(String courseCode) {
-    setState(() {
-      if (favoriteCourses.contains(courseCode)) {
-        favoriteCourses.remove(courseCode);
-      } else {
-        favoriteCourses.add(courseCode);
-      }
-    });
-  }
-
   Future<void> openCourseDetail(
     Map<String, dynamic> course,
   ) async {
-    final String courseCode = course['code'] as String;
-
     await Navigator.push(
       context,
       MaterialPageRoute(
         builder: (_) => CourseDetailPage(
           course: course,
-          isFavorite: () => isCourseFavorite(courseCode),
-          onFavoriteChanged: () {
-            toggleFavorite(courseCode);
-          },
         ),
       ),
     );
-
-    if (!mounted) return;
-
-    setState(() {});
   }
 
   Widget buildCourseCard(
     Map<String, dynamic> course,
+    bool isFavorite,
   ) {
     final String courseCode = course['code'] as String;
-    final bool isFavorite = isCourseFavorite(courseCode);
 
     return Card(
       child: InkWell(
@@ -411,7 +386,10 @@ class _CoursesPageState extends State<CoursesPage> {
                         ? 'Hapus dari favorite'
                         : 'Tambah ke favorite',
                     onPressed: () {
-                      toggleFavorite(courseCode);
+                      // read: menjalankan aksi pada Provider.
+                      context
+                          .read<CourseState>()
+                          .toggleFavorite(courseCode);
                     },
                     icon: Icon(
                       isFavorite
@@ -459,6 +437,9 @@ class _CoursesPageState extends State<CoursesPage> {
 
   @override
   Widget build(BuildContext context) {
+    // watch: CoursesPage mengikuti perubahan data favorit.
+    final courseState = context.watch<CourseState>();
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Courses'),
@@ -491,7 +472,8 @@ class _CoursesPageState extends State<CoursesPage> {
                 ),
                 const SizedBox(height: 16),
                 Text(
-                  'Total favorite: ${favoriteCourses.length}',
+                  'Total favorite: '
+                  '${courseState.favorites.length}',
                   style: const TextStyle(
                     fontWeight: FontWeight.bold,
                   ),
@@ -510,7 +492,13 @@ class _CoursesPageState extends State<CoursesPage> {
                     childAspectRatio: 1.35,
                   ),
                   itemBuilder: (context, index) {
-                    return buildCourseCard(courses[index]);
+                    final course = courses[index];
+                    final code = course['code'] as String;
+
+                    return buildCourseCard(
+                      course,
+                      courseState.isFavorite(code),
+                    );
                   },
                 ),
               ],
@@ -523,48 +511,21 @@ class _CoursesPageState extends State<CoursesPage> {
 }
 
 // =====================================================
-// TAHAP 3: COURSE DETAIL PAGE
+// TAHAP 3 & 7: COURSE DETAIL PAGE
+// FAVORITE MENGGUNAKAN CONSUMER DAN PROVIDER
 // =====================================================
 
-class CourseDetailPage extends StatefulWidget {
+class CourseDetailPage extends StatelessWidget {
   final Map<String, dynamic> course;
-  final bool Function() isFavorite;
-  final VoidCallback onFavoriteChanged;
 
   const CourseDetailPage({
     super.key,
     required this.course,
-    required this.isFavorite,
-    required this.onFavoriteChanged,
   });
 
   @override
-  State<CourseDetailPage> createState() =>
-      _CourseDetailPageState();
-}
-
-class _CourseDetailPageState
-    extends State<CourseDetailPage> {
-  void toggleFavorite() {
-    widget.onFavoriteChanged();
-
-    setState(() {});
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          widget.isFavorite()
-              ? 'Course ditambahkan ke favorite.'
-              : 'Course dihapus dari favorite.',
-        ),
-      ),
-    );
-  }
-
-  @override
   Widget build(BuildContext context) {
-    final course = widget.course;
-    final bool isFavorite = widget.isFavorite();
+    final String courseCode = course['code'] as String;
 
     return Scaffold(
       appBar: AppBar(
@@ -593,7 +554,7 @@ class _CourseDetailPageState
             ),
             const SizedBox(height: 16),
             Text(
-              'Code: ${course['code']}',
+              'Code: $courseCode',
               style: const TextStyle(fontSize: 18),
             ),
             const SizedBox(height: 8),
@@ -612,38 +573,76 @@ class _CourseDetailPageState
               style: const TextStyle(fontSize: 17),
             ),
             const SizedBox(height: 24),
-            Card(
-              child: ListTile(
-                leading: Icon(
-                  isFavorite
-                      ? Icons.favorite
-                      : Icons.favorite_border,
-                  color: isFavorite ? Colors.red : null,
-                ),
-                title: const Text('Status Favorite'),
-                subtitle: Text(
-                  isFavorite
-                      ? 'Course ini sudah menjadi favorite.'
-                      : 'Course ini belum menjadi favorite.',
-                ),
-              ),
+
+            // Consumer memperbarui status favorit secara otomatis.
+            Consumer<CourseState>(
+              builder: (context, state, child) {
+                final isFavorite =
+                    state.isFavorite(courseCode);
+
+                return Card(
+                  child: ListTile(
+                    leading: Icon(
+                      isFavorite
+                          ? Icons.favorite
+                          : Icons.favorite_border,
+                      color: isFavorite ? Colors.red : null,
+                    ),
+                    title: const Text('Status Favorite'),
+                    subtitle: Text(
+                      isFavorite
+                          ? 'Course ini sudah menjadi favorite.'
+                          : 'Course ini belum menjadi favorite.',
+                    ),
+                  ),
+                );
+              },
             ),
             const SizedBox(height: 16),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton.icon(
-                onPressed: toggleFavorite,
-                icon: Icon(
-                  isFavorite
-                      ? Icons.favorite
-                      : Icons.favorite_border,
-                ),
-                label: Text(
-                  isFavorite
-                      ? 'Hapus Favorite'
-                      : 'Tambah Favorite',
-                ),
-              ),
+
+            // Consumer membuat tombol mengikuti status terbaru.
+            Consumer<CourseState>(
+              builder: (context, state, child) {
+                final isFavorite =
+                    state.isFavorite(courseCode);
+
+                return SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton.icon(
+                    onPressed: () {
+                      final wasFavorite =
+                          context
+                              .read<CourseState>()
+                              .isFavorite(courseCode);
+
+                      context
+                          .read<CourseState>()
+                          .toggleFavorite(courseCode);
+
+                      ScaffoldMessenger.of(context)
+                          .showSnackBar(
+                        SnackBar(
+                          content: Text(
+                            wasFavorite
+                                ? 'Course dihapus dari favorite.'
+                                : 'Course ditambahkan ke favorite.',
+                          ),
+                        ),
+                      );
+                    },
+                    icon: Icon(
+                      isFavorite
+                          ? Icons.favorite
+                          : Icons.favorite_border,
+                    ),
+                    label: Text(
+                      isFavorite
+                          ? 'Hapus Favorite'
+                          : 'Tambah Favorite',
+                    ),
+                  ),
+                );
+              },
             ),
             const SizedBox(height: 12),
             SizedBox(
@@ -671,6 +670,9 @@ class ProfilePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // watch digunakan agar Profile mengikuti jumlah favorit.
+    final courseState = context.watch<CourseState>();
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Profile'),
@@ -710,6 +712,16 @@ class ProfilePage extends StatelessWidget {
                 leading: Icon(Icons.badge),
                 title: Text('NIM'),
                 subtitle: Text(studentId),
+              ),
+            ),
+            const SizedBox(height: 12),
+            Card(
+              child: ListTile(
+                leading: const Icon(Icons.favorite),
+                title: const Text('Total Favorite'),
+                subtitle: Text(
+                  '${courseState.favorites.length} course',
+                ),
               ),
             ),
           ],
