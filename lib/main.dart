@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'providers/course_state.dart';
 import 'screens/home_page.dart';
 import 'screens/courses_page.dart';
+import 'screens/favorites_page.dart';
 import 'screens/profile_page.dart';
 import 'screens/feedback_page.dart';
 
@@ -47,6 +48,7 @@ class _ResponsiveShellState extends State<ResponsiveShell> {
   final List<Widget> pages = const [
     HomePage(),
     CoursesPage(),
+    FavoritesPage(),
     ProfilePage(),
     FeedbackPage(),
   ];
@@ -69,6 +71,11 @@ class _ResponsiveShellState extends State<ResponsiveShell> {
           icon: Icon(Icons.school_outlined),
           selectedIcon: Icon(Icons.school),
           label: 'Courses',
+        ),
+        NavigationDestination(
+          icon: Icon(Icons.favorite_border),
+          selectedIcon: Icon(Icons.favorite),
+          label: 'Favorites',
         ),
         NavigationDestination(
           icon: Icon(Icons.person_outline),
@@ -103,6 +110,11 @@ class _ResponsiveShellState extends State<ResponsiveShell> {
           icon: Icon(Icons.school_outlined),
           selectedIcon: Icon(Icons.school),
           label: Text('Courses'),
+        ),
+        NavigationRailDestination(
+          icon: Icon(Icons.favorite_border),
+          selectedIcon: Icon(Icons.favorite),
+          label: Text('Favorites'),
         ),
         NavigationRailDestination(
           icon: Icon(Icons.person_outline),
