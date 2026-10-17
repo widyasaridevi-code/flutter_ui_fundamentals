@@ -1,18 +1,20 @@
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-
 import 'providers/course_state.dart';
 import 'screens/home_page.dart';
 import 'screens/courses_page.dart';
 import 'screens/favorites_page.dart';
 import 'screens/profile_page.dart';
 import 'screens/feedback_page.dart';
-
+import 'services/course_service.dart';
+import 'repositories/course_repository.dart';
 void main() {
   runApp(
     ChangeNotifierProvider(
-      create: (_) => CourseState(),
+      create: (_) => CourseState(
+        repository: CourseRepository(CourseService()),
+      ),
       child: const MyApp(),
     ),
   );

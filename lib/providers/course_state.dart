@@ -2,10 +2,12 @@
 import 'package:flutter/foundation.dart';
 
 import '../models/course.dart';
-import '../services/course_service.dart';
+import '../repositories/course_repository.dart';
 
 class CourseState extends ChangeNotifier {
-  final CourseService _courseService = CourseService();
+  final CourseRepository repository;
+
+  CourseState({required this.repository});
 
   final Set<String> favorites = {};
 
@@ -20,7 +22,7 @@ class CourseState extends ChangeNotifier {
     notifyListeners();
 
     try {
-      courses = await _courseService.loadCourses();
+      courses = await repository.getCourses();
     } catch (e) {
       errorMessage = 'Gagal memuat data course: $e';
     } finally {
