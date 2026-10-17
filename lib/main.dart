@@ -2,7 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import 'course_state.dart';
+import 'providers/course_state.dart';
 import 'models/course.dart';
 
 const String studentName = 'Komang Widyasari Devi';

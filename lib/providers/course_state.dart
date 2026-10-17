@@ -1,8 +1,8 @@
 
 import 'package:flutter/foundation.dart';
 
-import 'models/course.dart';
-import 'services/course_service.dart';
+import '../models/course.dart';
+import '../services/course_service.dart';
 
 class CourseState extends ChangeNotifier {
   final CourseService _courseService = CourseService();
