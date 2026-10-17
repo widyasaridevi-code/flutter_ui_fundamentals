@@ -1,6 +1,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
 import 'course_state.dart';
 import 'models/course.dart';
 
@@ -32,61 +33,6 @@ class MyApp extends StatelessWidget {
     );
   }
 }
-
-// =====================================================
-// TAHAP 8: MODEL COURSE DAN PARSING DATA
-// =====================================================
-
-final List<Course> courses = [
-  Course.fromJson({
-    'title': 'Flutter Dasar',
-    'code': 'FL001',
-    'credits': 3,
-    'status': 'Aktif',
-    'category':
-        'Mempelajari dasar Flutter, widget, dan struktur aplikasi.',
-  }),
-  Course.fromJson({
-    'title': 'Dart Programming',
-    'code': 'DT001',
-    'credits': 3,
-    'status': 'Aktif',
-    'category':
-        'Mempelajari dasar pemrograman menggunakan bahasa Dart.',
-  }),
-  Course.fromJson({
-    'title': 'Responsive Layout',
-    'code': 'RL001',
-    'credits': 2,
-    'status': 'Aktif',
-    'category':
-        'Membuat tampilan aplikasi yang menyesuaikan ukuran layar.',
-  }),
-  Course.fromJson({
-    'title': 'Mobile UI Design',
-    'code': 'UI001',
-    'credits': 2,
-    'status': 'Aktif',
-    'category':
-        'Mempelajari prinsip dasar desain antarmuka aplikasi mobile.',
-  }),
-  Course.fromJson({
-    'title': 'Navigation',
-    'code': 'NV001',
-    'credits': 2,
-    'status': 'Aktif',
-    'category':
-        'Membuat perpindahan halaman dan navigasi aplikasi Flutter.',
-  }),
-  Course.fromJson({
-    'title': 'User Interaction',
-    'code': 'IN001',
-    'credits': 2,
-    'status': 'Aktif',
-    'category':
-        'Menangani tap, button, gesture, form, dan feedback pengguna.',
-  }),
-];
 
 // =====================================================
 // RESPONSIVE SHELL
@@ -325,8 +271,8 @@ class HomePage extends StatelessWidget {
 }
 
 // =====================================================
-// TAHAP 3 & 7: COURSES PAGE
-// FAVORITE DIKELOLA OLEH PROVIDER
+// COURSES PAGE
+// DATA COURSE DIMUAT DARI COURSE STATE
 // =====================================================
 
 class CoursesPage extends StatefulWidget {
@@ -337,6 +283,17 @@ class CoursesPage extends StatefulWidget {
 }
 
 class _CoursesPageState extends State<CoursesPage> {
+  @override
+  void initState() {
+    super.initState();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+
+      context.read<CourseState>().loadCourses();
+    });
+  }
+
   Future<void> openCourseDetail(Course course) async {
     await Navigator.push(
       context,
@@ -436,6 +393,7 @@ class _CoursesPageState extends State<CoursesPage> {
   @override
   Widget build(BuildContext context) {
     final courseState = context.watch<CourseState>();
+    final loadedCourses = courseState.courses;
 
     return Scaffold(
       appBar: AppBar(
@@ -476,27 +434,63 @@ class _CoursesPageState extends State<CoursesPage> {
                   ),
                 ),
                 const SizedBox(height: 12),
-                GridView.builder(
-                  shrinkWrap: true,
-                  physics:
-                      const NeverScrollableScrollPhysics(),
-                  itemCount: courses.length,
-                  gridDelegate:
-                      SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: columns,
-                    crossAxisSpacing: 12,
-                    mainAxisSpacing: 12,
-                    childAspectRatio: 1.35,
-                  ),
-                  itemBuilder: (context, index) {
-                    final course = courses[index];
 
-                    return buildCourseCard(
-                      course,
-                      courseState.isFavorite(course.code),
-                    );
-                  },
-                ),
+                if (courseState.isLoading)
+                  const Center(
+                    child: Padding(
+                      padding: EdgeInsets.all(24),
+                      child: CircularProgressIndicator(),
+                    ),
+                  )
+                else if (courseState.errorMessage != null)
+                  Center(
+                    child: Padding(
+                      padding: const EdgeInsets.all(24),
+                      child: Column(
+                        children: [
+                          Text(courseState.errorMessage!),
+                          const SizedBox(height: 12),
+                          ElevatedButton(
+                            onPressed: () {
+                              context
+                                  .read<CourseState>()
+                                  .loadCourses();
+                            },
+                            child: const Text('Coba Lagi'),
+                          ),
+                        ],
+                      ),
+                    ),
+                  )
+                else if (loadedCourses.isEmpty)
+                  const Center(
+                    child: Padding(
+                      padding: EdgeInsets.all(24),
+                      child: Text('Belum ada course.'),
+                    ),
+                  )
+                else
+                  GridView.builder(
+                    shrinkWrap: true,
+                    physics:
+                        const NeverScrollableScrollPhysics(),
+                    itemCount: loadedCourses.length,
+                    gridDelegate:
+                        SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: columns,
+                      crossAxisSpacing: 12,
+                      mainAxisSpacing: 12,
+                      childAspectRatio: 1.35,
+                    ),
+                    itemBuilder: (context, index) {
+                      final course = loadedCourses[index];
+
+                      return buildCourseCard(
+                        course,
+                        courseState.isFavorite(course.code),
+                      );
+                    },
+                  ),
               ],
             ),
           );
@@ -507,7 +501,7 @@ class _CoursesPageState extends State<CoursesPage> {
 }
 
 // =====================================================
-// TAHAP 3 & 7: COURSE DETAIL PAGE
+// COURSE DETAIL PAGE
 // FAVORITE MENGGUNAKAN CONSUMER DAN PROVIDER
 // =====================================================
 
@@ -604,10 +598,9 @@ class CourseDetailPage extends StatelessWidget {
                   width: double.infinity,
                   child: ElevatedButton.icon(
                     onPressed: () {
-                      final wasFavorite =
-                          context
-                              .read<CourseState>()
-                              .isFavorite(courseCode);
+                      final wasFavorite = context
+                          .read<CourseState>()
+                          .isFavorite(courseCode);
 
                       context
                           .read<CourseState>()
@@ -874,7 +867,7 @@ class _FeedbackPageState extends State<FeedbackPage> {
 }
 
 // =====================================================
-// TAHAP 4: VALUENOTIFIER DAN VALUELISTENABLEBUILDER
+// VALUENOTIFIER DAN VALUELISTENABLEBUILDER
 // =====================================================
 
 class ValueNotifierDemo extends StatefulWidget {
