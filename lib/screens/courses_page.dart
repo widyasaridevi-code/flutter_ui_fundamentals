@@ -32,6 +32,8 @@ class _CoursesPageState extends State<CoursesPage> {
         builder: (_) => CourseDetailPage(course: course),
       ),
     );
+
+    if (!mounted) return;
   }
 
   Widget buildCourseCard(Course course, bool isFavorite) {
@@ -153,6 +155,7 @@ class _CoursesPageState extends State<CoursesPage> {
                   ),
                 ),
                 const SizedBox(height: 12),
+
                 if (courseState.isLoading)
                   const Center(
                     child: Padding(
@@ -190,7 +193,8 @@ class _CoursesPageState extends State<CoursesPage> {
                 else
                   GridView.builder(
                     shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
+                    physics:
+                        const NeverScrollableScrollPhysics(),
                     itemCount: loadedCourses.length,
                     gridDelegate:
                         SliverGridDelegateWithFixedCrossAxisCount(
