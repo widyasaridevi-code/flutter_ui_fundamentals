@@ -4,14 +4,14 @@ class Course {
   final String code;
   final int credits;
   final String status;
-  final String description;
+  final String category;
 
   const Course({
     required this.title,
     required this.code,
     required this.credits,
     required this.status,
-    required this.description,
+    required this.category,
   });
 
   factory Course.fromJson(Map<String, dynamic> json) {
@@ -20,7 +20,7 @@ class Course {
       code: json['code'] as String,
       credits: json['credits'] as int,
       status: json['status'] as String,
-      description: json['description'] as String,
+      category: json['category'] as String,
     );
   }
 }

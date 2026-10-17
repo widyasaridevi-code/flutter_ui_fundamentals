@@ -43,7 +43,7 @@ final List<Course> courses = [
     'code': 'FL001',
     'credits': 3,
     'status': 'Aktif',
-    'description':
+    'category':
         'Mempelajari dasar Flutter, widget, dan struktur aplikasi.',
   }),
   Course.fromJson({
@@ -51,7 +51,7 @@ final List<Course> courses = [
     'code': 'DT001',
     'credits': 3,
     'status': 'Aktif',
-    'description':
+    'category':
         'Mempelajari dasar pemrograman menggunakan bahasa Dart.',
   }),
   Course.fromJson({
@@ -59,7 +59,7 @@ final List<Course> courses = [
     'code': 'RL001',
     'credits': 2,
     'status': 'Aktif',
-    'description':
+    'category':
         'Membuat tampilan aplikasi yang menyesuaikan ukuran layar.',
   }),
   Course.fromJson({
@@ -67,7 +67,7 @@ final List<Course> courses = [
     'code': 'UI001',
     'credits': 2,
     'status': 'Aktif',
-    'description':
+    'category':
         'Mempelajari prinsip dasar desain antarmuka aplikasi mobile.',
   }),
   Course.fromJson({
@@ -75,7 +75,7 @@ final List<Course> courses = [
     'code': 'NV001',
     'credits': 2,
     'status': 'Aktif',
-    'description':
+    'category':
         'Membuat perpindahan halaman dan navigasi aplikasi Flutter.',
   }),
   Course.fromJson({
@@ -83,7 +83,7 @@ final List<Course> courses = [
     'code': 'IN001',
     'credits': 2,
     'status': 'Aktif',
-    'description':
+    'category':
         'Menangani tap, button, gesture, form, dan feedback pengguna.',
   }),
 ];
@@ -412,7 +412,7 @@ class _CoursesPageState extends State<CoursesPage> {
               ),
               const SizedBox(height: 8),
               Text(
-                course.description,
+                course.category,
                 maxLines: 3,
                 overflow: TextOverflow.ellipsis,
               ),
@@ -565,7 +565,7 @@ class CourseDetailPage extends StatelessWidget {
             ),
             const SizedBox(height: 20),
             Text(
-              course.description,
+              course.category,
               style: const TextStyle(fontSize: 17),
             ),
             const SizedBox(height: 24),
