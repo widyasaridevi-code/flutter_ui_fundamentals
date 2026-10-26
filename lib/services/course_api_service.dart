@@ -13,31 +13,25 @@ class CourseApiService {
   final String baseUrl;
 
   Future<List<Course>> getCourses() async {
-    // TAHAP 4: HTTP GET berada di service layer.
-    // JSONPlaceholder digunakan untuk latihan request HTTP.
-    try {
-      final response = await http.get(
-        Uri.parse('$baseUrl/posts'),
+    final response = await http.get(
+      Uri.parse('$baseUrl/posts'),
+    );
+
+    debugPrint('HTTP Status: ${response.statusCode}');
+
+    if (response.statusCode != 200) {
+      throw Exception(
+        'Gagal memuat data: HTTP ${response.statusCode}',
       );
-
-      debugPrint('HTTP Status: ${response.statusCode}');
-
-      if (response.statusCode == 200) {
-        final List<dynamic> apiData =
-            jsonDecode(response.body) as List<dynamic>;
-
-        debugPrint('Jumlah item API: ${apiData.length}');
-      } else {
-        debugPrint(
-          'Request API gagal: HTTP ${response.statusCode}',
-        );
-      }
-    } catch (e) {
-      debugPrint('Gagal mengakses API: $e');
     }
 
-    // Data course tetap menggunakan data lokal agar UI
-    // dan daftar course tidak berubah.
+    final List<dynamic> apiData =
+        jsonDecode(response.body) as List<dynamic>;
+
+    debugPrint('Jumlah item API: ${apiData.length}');
+
+    // Data course tetap berasal dari JSON lokal.
+    // JSONPlaceholder hanya digunakan untuk latihan HTTP GET.
     final jsonString = await rootBundle.loadString(
       'assets/data/student_data.json',
     );
@@ -47,7 +41,9 @@ class CourseApiService {
         data['courses'] as List<dynamic>;
 
     return coursesJson.map((item) {
-      return Course.fromJson(item as Map<String, dynamic>);
+      return Course.fromJson(
+        item as Map<String, dynamic>,
+      );
     }).toList();
   }
 }

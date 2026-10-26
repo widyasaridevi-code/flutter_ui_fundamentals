@@ -5,44 +5,35 @@ import 'package:provider/provider.dart';
 import '../models/course.dart';
 import '../providers/course_state.dart';
 import '../widgets/student_identity.dart';
+import '../widgets/error_view.dart';
 import 'course_detail_page.dart';
 
-class CoursesPage extends StatefulWidget {
+class CoursesPage extends StatelessWidget {
   const CoursesPage({super.key});
 
-  @override
-  State<CoursesPage> createState() => _CoursesPageState();
-}
-
-class _CoursesPageState extends State<CoursesPage> {
-  @override
-  void initState() {
-    super.initState();
-
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!mounted) return;
-      context.read<CourseState>().loadCourses();
-    });
-  }
-
-  Future<void> openCourseDetail(Course course) async {
+  Future<void> openCourseDetail(
+    BuildContext context,
+    Course course,
+  ) async {
     await Navigator.push(
       context,
       MaterialPageRoute(
         builder: (_) => CourseDetailPage(course: course),
       ),
     );
-
-    if (!mounted) return;
   }
 
-  Widget buildCourseCard(Course course, bool isFavorite) {
+  Widget buildCourseCard(
+    BuildContext context,
+    Course course,
+    bool isFavorite,
+  ) {
     final String courseCode = course.code;
 
     return Card(
       child: InkWell(
         borderRadius: BorderRadius.circular(12),
-        onTap: () => openCourseDetail(course),
+        onTap: () => openCourseDetail(context, course),
         onLongPress: () {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
@@ -135,6 +126,51 @@ class _CoursesPageState extends State<CoursesPage> {
             columns = 3;
           }
 
+          Widget stateContent;
+
+          if (courseState.isLoading) {
+            stateContent = const Center(
+              child: Padding(
+                padding: EdgeInsets.all(24),
+                child: CircularProgressIndicator(),
+              ),
+            );
+          } else if (courseState.errorMessage != null) {
+            stateContent = ErrorView(
+              message: courseState.errorMessage!,
+              onRetry: courseState.loadCourses,
+            );
+          } else if (loadedCourses.isEmpty) {
+            stateContent = const Center(
+              child: Padding(
+                padding: EdgeInsets.all(24),
+                child: Text('Data course belum tersedia.'),
+              ),
+            );
+          } else {
+            stateContent = GridView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: loadedCourses.length,
+              gridDelegate:
+                  SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: columns,
+                crossAxisSpacing: 12,
+                mainAxisSpacing: 12,
+                childAspectRatio: 1.35,
+              ),
+              itemBuilder: (context, index) {
+                final course = loadedCourses[index];
+
+                return buildCourseCard(
+                  context,
+                  course,
+                  courseState.isFavorite(course.code),
+                );
+              },
+            );
+          }
+
           return SingleChildScrollView(
             padding: const EdgeInsets.all(16),
             child: Column(
@@ -157,62 +193,10 @@ class _CoursesPageState extends State<CoursesPage> {
                   ),
                 ),
                 const SizedBox(height: 12),
-                if (courseState.isLoading)
-                  const Center(
-                    child: Padding(
-                      padding: EdgeInsets.all(24),
-                      child: CircularProgressIndicator(),
-                    ),
-                  )
-                else if (courseState.errorMessage != null)
-                  Center(
-                    child: Padding(
-                      padding: const EdgeInsets.all(24),
-                      child: Column(
-                        children: [
-                          Text(courseState.errorMessage!),
-                          const SizedBox(height: 12),
-                          ElevatedButton(
-                            onPressed: () {
-                              context
-                                  .read<CourseState>()
-                                  .loadCourses();
-                            },
-                            child: const Text('Coba Lagi'),
-                          ),
-                        ],
-                      ),
-                    ),
-                  )
-                else if (loadedCourses.isEmpty)
-                  const Center(
-                    child: Padding(
-                      padding: EdgeInsets.all(24),
-                      child: Text('Belum ada course.'),
-                    ),
-                  )
-                else
-                  GridView.builder(
-                    shrinkWrap: true,
-                    physics:
-                        const NeverScrollableScrollPhysics(),
-                    itemCount: loadedCourses.length,
-                    gridDelegate:
-                        SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: columns,
-                      crossAxisSpacing: 12,
-                      mainAxisSpacing: 12,
-                      childAspectRatio: 1.35,
-                    ),
-                    itemBuilder: (context, index) {
-                      final course = loadedCourses[index];
-
-                      return buildCourseCard(
-                        course,
-                        courseState.isFavorite(course.code),
-                      );
-                    },
-                  ),
+                SizedBox(
+                  width: double.infinity,
+                  child: stateContent,
+                ),
               ],
             ),
           );

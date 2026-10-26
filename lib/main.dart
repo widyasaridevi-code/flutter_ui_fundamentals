@@ -20,7 +20,7 @@ void main() {
             'https://jsonplaceholder.typicode.com',
           ),
         ),
-      ),
+      )..loadCourses(),
       child: const MyApp(),
     ),
   );
