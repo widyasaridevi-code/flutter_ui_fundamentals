@@ -5,13 +5,14 @@ import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 
 import '../models/course.dart';
+import 'course_data_source.dart';
 
-class CourseApiService {
+class CourseApiService implements CourseDataSource {
   final String baseUrl;
 
   CourseApiService(this.baseUrl);
 
-  // GET: Mengambil course dari data JSON lokal.
+  @override
   Future<List<Course>> getCourses() async {
     final response = await http.get(
       Uri.parse('$baseUrl/posts'),
@@ -39,7 +40,7 @@ class CourseApiService {
     }).toList();
   }
 
-  // POST: Menambahkan course.
+  @override
   Future<Course> createCourse(Course course) async {
     final response = await http.post(
       Uri.parse('$baseUrl/posts'),
@@ -67,7 +68,7 @@ class CourseApiService {
     );
   }
 
-  // PUT: Memperbarui course.
+  @override
   Future<void> updateCourse(int id, Course course) async {
     final response = await http.put(
       Uri.parse('$baseUrl/posts/$id'),
@@ -83,7 +84,7 @@ class CourseApiService {
     }
   }
 
-  // DELETE: Menghapus course.
+  @override
   Future<void> deleteCourse(int id) async {
     final response = await http.delete(
       Uri.parse('$baseUrl/posts/$id'),

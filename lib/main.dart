@@ -11,15 +11,21 @@ import 'screens/feedback_page.dart';
 import 'services/course_api_service.dart';
 import 'repositories/course_repository.dart';
 
+const String apiBaseUrl =
+    'https://jsonplaceholder.typicode.com';
+
 void main() {
+  // 1. Service sebagai implementasi sumber data.
+  final dataSource = CourseApiService(apiBaseUrl);
+
+  // 2. Repository menerima kontrak CourseDataSource.
+  final repository = CourseRepository(dataSource);
+
+  // 3. Provider menerima repository melalui constructor.
   runApp(
     ChangeNotifierProvider(
       create: (_) => CourseState(
-        repository: CourseRepository(
-          CourseApiService(
-            'https://jsonplaceholder.typicode.com',
-          ),
-        ),
+        repository: repository,
       )..loadCourses(),
       child: const MyApp(),
     ),
