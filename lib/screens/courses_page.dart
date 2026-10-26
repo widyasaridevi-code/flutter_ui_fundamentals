@@ -96,6 +96,8 @@ class _CoursesPageState extends State<CoursesPage> {
                 overflow: TextOverflow.ellipsis,
               ),
               const SizedBox(height: 8),
+              Text('Status Course: ${course.status}'),
+              const SizedBox(height: 8),
               Text(
                 isFavorite
                     ? 'Status: Favorite'
@@ -155,7 +157,6 @@ class _CoursesPageState extends State<CoursesPage> {
                   ),
                 ),
                 const SizedBox(height: 12),
-
                 if (courseState.isLoading)
                   const Center(
                     child: Padding(
