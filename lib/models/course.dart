@@ -1,16 +1,16 @@
 
 class Course {
   final int? id;
-  final String title;
   final String code;
+  final String title;
   final int credits;
   final String status;
   final String category;
 
   const Course({
     this.id,
-    required this.title,
     required this.code,
+    required this.title,
     required this.credits,
     this.status = 'planned',
     required this.category,
@@ -19,10 +19,10 @@ class Course {
   factory Course.fromJson(Map<String, dynamic> json) {
     return Course(
       id: json['id'] as int?,
-      title: json['title'] as String,
       code: json['code'] as String,
+      title: json['title'] as String,
       credits: json['credits'] as int,
-      status: (json['status'] as String?) ?? 'planned',
+      status: json['status'] as String? ?? 'planned',
       category: json['category'] as String,
     );
   }

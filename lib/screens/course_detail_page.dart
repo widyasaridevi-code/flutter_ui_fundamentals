@@ -5,8 +5,9 @@ import 'package:provider/provider.dart';
 import '../models/course.dart';
 import '../providers/course_state.dart';
 import '../widgets/student_identity.dart';
+import 'edit_course_page.dart';
 
-class CourseDetailPage extends StatelessWidget {
+class CourseDetailPage extends StatefulWidget {
   final Course course;
 
   const CourseDetailPage({
@@ -15,8 +16,41 @@ class CourseDetailPage extends StatelessWidget {
   });
 
   @override
+  State<CourseDetailPage> createState() =>
+      _CourseDetailPageState();
+}
+
+class _CourseDetailPageState extends State<CourseDetailPage> {
+  late Course currentCourse;
+
+  @override
+  void initState() {
+    super.initState();
+    currentCourse = widget.course;
+  }
+
+  Future<void> _editCourse() async {
+    final updatedCourse = await Navigator.push<Course>(
+      context,
+      MaterialPageRoute(
+        builder: (_) => EditCoursePage(
+          course: currentCourse,
+        ),
+      ),
+    );
+
+    if (!mounted || updatedCourse == null) {
+      return;
+    }
+
+    setState(() {
+      currentCourse = updatedCourse;
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final String courseCode = course.code;
+    final courseCode = currentCourse.code;
 
     return Scaffold(
       appBar: AppBar(
@@ -30,11 +64,14 @@ class CourseDetailPage extends StatelessWidget {
             const StudentIdentity(),
             const SizedBox(height: 32),
             const Center(
-              child: Icon(Icons.school, size: 90),
+              child: Icon(
+                Icons.school,
+                size: 90,
+              ),
             ),
             const SizedBox(height: 24),
             Text(
-              course.title,
+              currentCourse.title,
               style: const TextStyle(
                 fontSize: 30,
                 fontWeight: FontWeight.bold,
@@ -47,17 +84,17 @@ class CourseDetailPage extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             Text(
-              'Credits: ${course.credits} SKS',
+              'Credits: ${currentCourse.credits} SKS',
               style: const TextStyle(fontSize: 18),
             ),
             const SizedBox(height: 8),
             Text(
-              'Status: ${course.status}',
+              'Status: ${currentCourse.status}',
               style: const TextStyle(fontSize: 18),
             ),
             const SizedBox(height: 20),
             Text(
-              course.category,
+              currentCourse.category,
               style: const TextStyle(fontSize: 17),
             ),
             const SizedBox(height: 24),
@@ -130,7 +167,16 @@ class CourseDetailPage extends StatelessWidget {
             const SizedBox(height: 12),
             SizedBox(
               width: double.infinity,
-              child: OutlinedButton(
+              child: OutlinedButton.icon(
+                onPressed: _editCourse,
+                icon: const Icon(Icons.edit),
+                label: const Text('Edit Course'),
+              ),
+            ),
+            const SizedBox(height: 12),
+            SizedBox(
+              width: double.infinity,
+              child: TextButton(
                 onPressed: () => Navigator.pop(context),
                 child: const Text('Kembali'),
               ),

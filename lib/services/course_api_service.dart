@@ -20,12 +20,15 @@ class CourseApiService {
     debugPrint('GET HTTP Status: ${response.statusCode}');
 
     if (response.statusCode != 200) {
-      throw Exception('Gagal memuat course: HTTP ${response.statusCode}');
+      throw Exception(
+        'Gagal memuat course: HTTP ${response.statusCode}',
+      );
     }
 
     final jsonString = await rootBundle.loadString(
       'assets/data/student_data.json',
     );
+
     final data = jsonDecode(jsonString) as Map<String, dynamic>;
     final List<dynamic> list = data['courses'] as List<dynamic>;
 
@@ -37,7 +40,9 @@ class CourseApiService {
   Future<Course> createCourse(Course course) async {
     final response = await http.post(
       Uri.parse('$baseUrl/posts'),
-      headers: {'Content-Type': 'application/json; charset=UTF-8'},
+      headers: {
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
       body: jsonEncode(course.toJson()),
     );
 
@@ -45,9 +50,37 @@ class CourseApiService {
 
     if (response.statusCode == 200 || response.statusCode == 201) {
       final data = jsonDecode(response.body) as Map<String, dynamic>;
-      return Course.fromJson(data);
+
+      return Course(
+        id: data['id'] as int?,
+        code: course.code,
+        title: course.title,
+        credits: course.credits,
+        status: course.status,
+        category: course.category,
+      );
     }
 
-    throw Exception('Gagal membuat course: HTTP ${response.statusCode}');
+    throw Exception(
+      'Gagal membuat course: HTTP ${response.statusCode}',
+    );
+  }
+
+  Future<void> updateCourse(int id, Course course) async {
+    final response = await http.put(
+      Uri.parse('$baseUrl/posts/$id'),
+      headers: {
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: jsonEncode(course.toJson()),
+    );
+
+    debugPrint('PUT HTTP Status: ${response.statusCode}');
+
+    if (response.statusCode < 200 || response.statusCode >= 300) {
+      throw Exception(
+        'Gagal memperbarui course: HTTP ${response.statusCode}',
+      );
+    }
   }
 }
