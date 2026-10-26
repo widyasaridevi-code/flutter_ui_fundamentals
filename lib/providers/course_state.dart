@@ -38,10 +38,12 @@ class CourseState extends ChangeNotifier {
     }
 
     isSaving = true;
+    errorMessage = null;
     notifyListeners();
 
     try {
-      final createdCourse = await repository.createCourse(course);
+      final createdCourse =
+          await repository.createCourse(course);
 
       courses = [...courses, createdCourse];
 
@@ -85,6 +87,53 @@ class CourseState extends ChangeNotifier {
       notifyListeners();
     } catch (e) {
       errorMessage = 'Gagal memperbarui course: $e';
+      rethrow;
+    } finally {
+      isSaving = false;
+      notifyListeners();
+    }
+  }
+
+  // DELETE: Menghapus course dan favorite terkait.
+  Future<void> deleteCourse(String courseCode) async {
+    if (isSaving) {
+      throw Exception('Operasi course sedang berlangsung.');
+    }
+
+    final index = courses.indexWhere(
+      (course) => course.code == courseCode,
+    );
+
+    if (index == -1) {
+      throw Exception('Course tidak ditemukan.');
+    }
+
+    final course = courses[index];
+    final id = course.id;
+
+    if (id == null) {
+      throw Exception('ID course tidak ditemukan.');
+    }
+
+    isSaving = true;
+    errorMessage = null;
+    notifyListeners();
+
+    try {
+      // Hapus dari server melalui HTTP DELETE terlebih dahulu.
+      await repository.deleteCourse(id);
+
+      // Hapus dari daftar lokal setelah DELETE berhasil.
+      courses = courses
+          .where((item) => item.code != courseCode)
+          .toList();
+
+      // Hapus favorite agar tidak ada data yatim.
+      favorites.remove(courseCode);
+
+      notifyListeners();
+    } catch (e) {
+      errorMessage = 'Gagal menghapus course: $e';
       rethrow;
     } finally {
       isSaving = false;

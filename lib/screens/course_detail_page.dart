@@ -48,6 +48,78 @@ class _CourseDetailPageState extends State<CourseDetailPage> {
     });
   }
 
+  Future<void> _deleteCourse() async {
+    final courseCode = currentCourse.code;
+    final courseTitle = currentCourse.title;
+
+    // Tampilkan dialog konfirmasi.
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) {
+        return AlertDialog(
+          title: const Text('Hapus Course?'),
+          content: Text(
+            'Apakah kamu yakin ingin menghapus '
+            '"$courseTitle" ($courseCode)?',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(dialogContext, false);
+              },
+              child: const Text('Batal'),
+            ),
+            FilledButton(
+              onPressed: () {
+                Navigator.pop(dialogContext, true);
+              },
+              child: const Text('Hapus'),
+            ),
+          ],
+        );
+      },
+    );
+
+    // Pastikan halaman masih aktif setelah dialog ditutup.
+    if (!mounted || confirmed != true) {
+      return;
+    }
+
+    // Ambil referensi sebelum proses asynchronous.
+    final courseState = context.read<CourseState>();
+    final messenger = ScaffoldMessenger.of(context);
+    final navigator = Navigator.of(context);
+
+    try {
+      await courseState.deleteCourse(courseCode);
+
+      // Periksa mounted setelah proses DELETE.
+      if (!mounted) {
+        return;
+      }
+
+      messenger.showSnackBar(
+        SnackBar(
+          content: Text(
+            'Course "$courseTitle" berhasil dihapus.',
+          ),
+        ),
+      );
+
+      navigator.pop();
+    } catch (e) {
+      if (!mounted) {
+        return;
+      }
+
+      messenger.showSnackBar(
+        SnackBar(
+          content: Text('Gagal menghapus course: $e'),
+        ),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final courseCode = currentCourse.code;
@@ -98,6 +170,8 @@ class _CourseDetailPageState extends State<CourseDetailPage> {
               style: const TextStyle(fontSize: 17),
             ),
             const SizedBox(height: 24),
+
+            // Status favorite.
             Consumer<CourseState>(
               builder: (context, state, child) {
                 final isFavorite =
@@ -122,6 +196,8 @@ class _CourseDetailPageState extends State<CourseDetailPage> {
               },
             ),
             const SizedBox(height: 16),
+
+            // Tombol favorite.
             Consumer<CourseState>(
               builder: (context, state, child) {
                 final isFavorite =
@@ -131,13 +207,13 @@ class _CourseDetailPageState extends State<CourseDetailPage> {
                   width: double.infinity,
                   child: ElevatedButton.icon(
                     onPressed: () {
-                      final wasFavorite = context
-                          .read<CourseState>()
-                          .isFavorite(courseCode);
+                      final courseState =
+                          context.read<CourseState>();
 
-                      context
-                          .read<CourseState>()
-                          .toggleFavorite(courseCode);
+                      final wasFavorite =
+                          courseState.isFavorite(courseCode);
+
+                      courseState.toggleFavorite(courseCode);
 
                       ScaffoldMessenger.of(context)
                           .showSnackBar(
@@ -165,6 +241,8 @@ class _CourseDetailPageState extends State<CourseDetailPage> {
               },
             ),
             const SizedBox(height: 12),
+
+            // Tombol edit.
             SizedBox(
               width: double.infinity,
               child: OutlinedButton.icon(
@@ -174,6 +252,23 @@ class _CourseDetailPageState extends State<CourseDetailPage> {
               ),
             ),
             const SizedBox(height: 12),
+
+            // Tombol delete.
+            SizedBox(
+              width: double.infinity,
+              child: FilledButton.icon(
+                onPressed: _deleteCourse,
+                style: FilledButton.styleFrom(
+                  backgroundColor: Colors.red,
+                  foregroundColor: Colors.white,
+                ),
+                icon: const Icon(Icons.delete),
+                label: const Text('Delete Course'),
+              ),
+            ),
+            const SizedBox(height: 12),
+
+            // Tombol kembali.
             SizedBox(
               width: double.infinity,
               child: TextButton(
