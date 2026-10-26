@@ -97,3 +97,28 @@ Nama: Komang Widyasari Devi
 Screens/Widgets -> Provider -> Repository -> Service/Data Source.
 
 UI tidak membaca JSON secara langsung. Provider mengelola state, Repository menjadi perantara akses data, dan Service menangani detail sumber data.
+
+## Tahap 1 — Membaca REST Endpoint dan JSON
+
+### Informasi Endpoint
+
+- **URL:** https://jsonplaceholder.typicode.com/posts/1
+- **HTTP Method:** GET
+- **Status Code:** 200 OK
+- **Resource:** posts
+- **Format Response:** JSON
+
+### Struktur JSON
+
+Data yang diterima memiliki field berikut:
+
+1. `userId`: ID pengguna yang membuat post.
+2. `id`: ID post.
+3. `title`: Judul post.
+4. `body`: Isi post.
+
+### Catatan
+
+Endpoint REST digunakan untuk mengakses resource melalui URL. Metode GET digunakan untuk mengambil data dari server. Respons berhasil ditandai dengan status code 200 OK. Data yang diterima dari endpoint ini berbentuk JSON.
+
+JSONPlaceholder merupakan API latihan. Data write pada layanan ini disimulasikan dan tidak disimpan secara permanen.
