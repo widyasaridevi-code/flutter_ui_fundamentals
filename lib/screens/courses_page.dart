@@ -7,6 +7,7 @@ import '../providers/course_state.dart';
 import '../widgets/student_identity.dart';
 import '../widgets/error_view.dart';
 import 'course_detail_page.dart';
+import 'add_course_page.dart';
 
 class CoursesPage extends StatelessWidget {
   const CoursesPage({super.key});
@@ -114,6 +115,21 @@ class CoursesPage extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Courses'),
       ),
+
+      // Tombol tambah course berada di sini.
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => const AddCoursePage(),
+            ),
+          );
+        },
+        icon: const Icon(Icons.add),
+        label: const Text('Tambah Course'),
+      ),
+
       body: LayoutBuilder(
         builder: (context, constraints) {
           int columns;

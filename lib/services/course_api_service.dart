@@ -17,33 +17,37 @@ class CourseApiService {
       Uri.parse('$baseUrl/posts'),
     );
 
-    debugPrint('HTTP Status: ${response.statusCode}');
+    debugPrint('GET HTTP Status: ${response.statusCode}');
 
     if (response.statusCode != 200) {
-      throw Exception(
-        'Gagal memuat data: HTTP ${response.statusCode}',
-      );
+      throw Exception('Gagal memuat course: HTTP ${response.statusCode}');
     }
 
-    final List<dynamic> apiData =
-        jsonDecode(response.body) as List<dynamic>;
-
-    debugPrint('Jumlah item API: ${apiData.length}');
-
-    // Data course tetap berasal dari JSON lokal.
-    // JSONPlaceholder hanya digunakan untuk latihan HTTP GET.
     final jsonString = await rootBundle.loadString(
       'assets/data/student_data.json',
     );
-
     final data = jsonDecode(jsonString) as Map<String, dynamic>;
-    final List<dynamic> coursesJson =
-        data['courses'] as List<dynamic>;
+    final List<dynamic> list = data['courses'] as List<dynamic>;
 
-    return coursesJson.map((item) {
-      return Course.fromJson(
-        item as Map<String, dynamic>,
-      );
+    return list.map((item) {
+      return Course.fromJson(item as Map<String, dynamic>);
     }).toList();
+  }
+
+  Future<Course> createCourse(Course course) async {
+    final response = await http.post(
+      Uri.parse('$baseUrl/posts'),
+      headers: {'Content-Type': 'application/json; charset=UTF-8'},
+      body: jsonEncode(course.toJson()),
+    );
+
+    debugPrint('POST HTTP Status: ${response.statusCode}');
+
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      final data = jsonDecode(response.body) as Map<String, dynamic>;
+      return Course.fromJson(data);
+    }
+
+    throw Exception('Gagal membuat course: HTTP ${response.statusCode}');
   }
 }

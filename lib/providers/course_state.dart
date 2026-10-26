@@ -14,6 +14,7 @@ class CourseState extends ChangeNotifier {
   List<Course> courses = [];
 
   bool isLoading = false;
+  bool isSaving = false;
   String? errorMessage;
 
   Future<void> loadCourses() async {
@@ -27,6 +28,29 @@ class CourseState extends ChangeNotifier {
       errorMessage = 'Gagal memuat data course: $e';
     } finally {
       isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<Course> createCourse(Course course) async {
+    if (isSaving) {
+      throw Exception('Course sedang disimpan.');
+    }
+
+    isSaving = true;
+    notifyListeners();
+
+    try {
+      final createdCourse = await repository.createCourse(course);
+
+      // Tambahkan hasil POST ke daftar yang sedang ditampilkan.
+      courses = [...courses, createdCourse];
+
+      notifyListeners();
+
+      return createdCourse;
+    } finally {
+      isSaving = false;
       notifyListeners();
     }
   }
