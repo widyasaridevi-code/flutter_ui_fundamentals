@@ -9,6 +9,37 @@ import 'screens/profile_page.dart';
 import 'screens/feedback_page.dart';
 import 'services/course_service.dart';
 import 'repositories/course_repository.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+
+// TAHAP 2: HTTP GET DARI FLUTTER
+const String apiUrl =
+    'https://jsonplaceholder.typicode.com/posts';
+
+Future<List<dynamic>> fetchCourses() async {
+  try {
+    final response = await http.get(
+      Uri.parse(apiUrl),
+    );
+
+    debugPrint('HTTP Status: ${response.statusCode}');
+
+    if (response.statusCode == 200) {
+      final data =
+          jsonDecode(response.body) as List<dynamic>;
+
+      debugPrint('Jumlah item: ${data.length}');
+
+      return data;
+    }
+
+    throw Exception('HTTP ${response.statusCode}');
+  } catch (e) {
+    debugPrint('Gagal mengambil data: $e');
+    return <dynamic>[];
+  }
+}
+
 void main() {
   runApp(
     ChangeNotifierProvider(
@@ -18,6 +49,9 @@ void main() {
       child: const MyApp(),
     ),
   );
+
+  // TAHAP 2: Menjalankan pengujian HTTP GET
+  fetchCourses();
 }
 
 class MyApp extends StatelessWidget {
