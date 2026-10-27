@@ -8,12 +8,9 @@ import 'screens/courses_page.dart';
 import 'screens/favorites_page.dart';
 import 'screens/profile_page.dart';
 import 'screens/feedback_page.dart';
-import 'services/course_api_service.dart';
+import 'services/course_supabase_service.dart';
 import 'repositories/course_repository.dart';
 import 'supabase_config.dart';
-
-const String apiBaseUrl =
-    'https://jsonplaceholder.typicode.com';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -21,13 +18,13 @@ Future<void> main() async {
   // 1. Inisialisasi koneksi Supabase.
   await SupabaseConfig.initialize();
 
-  // 2. Service sebagai implementasi sumber data.
-  final dataSource = CourseApiService(apiBaseUrl);
+  // 2. Gunakan Supabase sebagai sumber data course.
+  final dataSource = CourseSupabaseService();
 
-  // 3. Repository menerima kontrak CourseDataSource.
+  // 3. Repository menerima sumber data Supabase.
   final repository = CourseRepository(dataSource);
 
-  // 4. Provider menerima repository melalui constructor.
+  // 4. Provider menyediakan CourseState untuk aplikasi.
   runApp(
     ChangeNotifierProvider(
       create: (_) => CourseState(
