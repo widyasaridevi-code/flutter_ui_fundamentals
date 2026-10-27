@@ -17,21 +17,37 @@ class CourseSupabaseService implements CourseDataSource {
     return (data as List)
         .map(
           (e) => Course.fromJson(
-            e as Map<String, dynamic>,
+            Map<String, dynamic>.from(e),
           ),
         )
         .toList();
   }
 
+  // TAHAP 13: INSERT course ke Supabase
   @override
-  Future<Course> createCourse(Course course) =>
-      throw UnimplementedError();
+  Future<Course> createCourse(Course course) async {
+    // ID dibuat otomatis oleh database.
+    final payload = course.toJson();
+    payload.remove('id');
+
+    final row = await supabase
+        .from('courses')
+        .insert(payload)
+        .select()
+        .single();
+
+    return Course.fromJson(
+      Map<String, dynamic>.from(row),
+    );
+  }
 
   @override
-  Future<void> updateCourse(int id, Course course) =>
-      throw UnimplementedError();
+  Future<void> updateCourse(int id, Course course) async {
+    throw UnimplementedError();
+  }
 
   @override
-  Future<void> deleteCourse(int id) =>
-      throw UnimplementedError();
+  Future<void> deleteCourse(int id) async {
+    throw UnimplementedError();
+  }
 }

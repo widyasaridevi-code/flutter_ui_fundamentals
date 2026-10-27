@@ -34,7 +34,7 @@ class _AddCoursePageState extends State<AddCoursePage> {
     }
 
     final course = Course(
-      code: _codeController.text.trim(),
+      code: _codeController.text.trim().toUpperCase(),
       title: _titleController.text.trim(),
       credits: int.parse(_creditsController.text.trim()),
       status: _status,
@@ -48,31 +48,21 @@ class _AddCoursePageState extends State<AddCoursePage> {
 
       if (!mounted) return;
 
-      if (state.errorMessage != null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              'POST berhasil, tetapi daftar gagal dimuat ulang: '
-              '${state.errorMessage}',
-            ),
-          ),
-        );
-        return;
-      }
-
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('POST berhasil dikirim.'),
+          content: Text('Course berhasil disimpan ke Supabase!'),
         ),
       );
 
+      // CourseState sudah menambahkan row baru ke daftar.
       Navigator.pop(context);
     } catch (e) {
       if (!mounted) return;
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Gagal menyimpan course: $e'),
+          content: Text('Gagal menyimpan course:\n$e'),
+          duration: const Duration(seconds: 8),
         ),
       );
     }
@@ -102,8 +92,10 @@ class _AddCoursePageState extends State<AddCoursePage> {
 
             TextFormField(
               controller: _codeController,
+              textCapitalization: TextCapitalization.characters,
               decoration: const InputDecoration(
                 labelText: 'Kode Course',
+                hintText: 'Contoh: TI999',
                 border: OutlineInputBorder(),
               ),
               validator: (value) {
