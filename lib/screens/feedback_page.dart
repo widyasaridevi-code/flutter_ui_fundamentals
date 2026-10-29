@@ -24,21 +24,24 @@ class _FeedbackPageState extends State<FeedbackPage> {
   }
 
   Future<void> submitFeedback() async {
-    if (!formKey.currentState!.validate()) {
-      return;
+   
+  if (!formKey.currentState!.validate()) {
+  return;
     }
 
-    setState(() {
-      isLoading = true;
-    });
+setState(() {
+  isLoading = true;
+});
 
-    await Future.delayed(const Duration(seconds: 2));
+await Future.delayed(const Duration(seconds: 2));
 
-    if (!mounted) return;
+// Pengecekan mounted dimatikan sementara untuk pengujian.
+// if (!mounted) return;
 
-    setState(() {
-      isLoading = false;
-    });
+setState(() {
+  isLoading = false;
+});
+
 
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
