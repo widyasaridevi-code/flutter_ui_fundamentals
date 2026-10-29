@@ -122,3 +122,15 @@ Data yang diterima memiliki field berikut:
 Endpoint REST digunakan untuk mengakses resource melalui URL. Metode GET digunakan untuk mengambil data dari server. Respons berhasil ditandai dengan status code 200 OK. Data yang diterima dari endpoint ini berbentuk JSON.
 
 JSONPlaceholder merupakan API latihan. Data write pada layanan ini disimulasikan dan tidak disimpan secara permanen.
+
+
+## Struktur Folder dan Tanggung Jawab
+
+- `lib/models/`: Menyimpan model data Course.
+- `lib/services/`: Mengambil data dari Supabase.
+- `lib/repositories/`: Menjadi perantara Provider dan Service.
+- `lib/providers/`: Mengelola state, loading, error, dan favorites.
+- `lib/screens/`: Menampilkan halaman aplikasi.
+- `lib/widgets/`: Menyimpan komponen UI yang dapat digunakan kembali.
+
+Arah dependency: Screen/Widget → Provider → Repository → Service/Data Source.
