@@ -23,10 +23,8 @@ class CourseSupabaseService implements CourseDataSource {
         .toList();
   }
 
-  // TAHAP 13: INSERT course ke Supabase
   @override
   Future<Course> createCourse(Course course) async {
-    // ID dibuat otomatis oleh database.
     final payload = course.toJson();
     payload.remove('id');
 
@@ -41,9 +39,30 @@ class CourseSupabaseService implements CourseDataSource {
     );
   }
 
+  // TAHAP 14: UPDATE course berdasarkan ID
   @override
   Future<void> updateCourse(int id, Course course) async {
-    throw UnimplementedError();
+    final payload = course.toJson();
+    payload.remove('id');
+
+    // Jangan mengirim ID sebagai data yang akan diubah.
+    // Update hanya baris dengan ID yang sesuai.
+    await supabase
+        .from('courses')
+        .update(payload)
+        .eq('id', id);
+
+    // Pastikan baris dengan ID tersebut dapat ditemukan.
+    final check = await supabase
+        .from('courses')
+        .select('id')
+        .eq('id', id);
+
+    if ((check as List).isEmpty) {
+      throw Exception(
+        'Course ID $id tidak ditemukan di tabel Supabase.',
+      );
+    }
   }
 
   @override

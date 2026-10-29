@@ -21,7 +21,6 @@ class EditCoursePage extends StatefulWidget {
 class _EditCoursePageState extends State<EditCoursePage> {
   final _formKey = GlobalKey<FormState>();
 
-  late final TextEditingController _codeController;
   late final TextEditingController _titleController;
   late final TextEditingController _creditsController;
   late final TextEditingController _categoryController;
@@ -38,15 +37,14 @@ class _EditCoursePageState extends State<EditCoursePage> {
   void initState() {
     super.initState();
 
-    _codeController = TextEditingController(
-      text: widget.course.code,
-    );
     _titleController = TextEditingController(
       text: widget.course.title,
     );
+
     _creditsController = TextEditingController(
       text: widget.course.credits.toString(),
     );
+
     _categoryController = TextEditingController(
       text: widget.course.category,
     );
@@ -58,7 +56,6 @@ class _EditCoursePageState extends State<EditCoursePage> {
 
   @override
   void dispose() {
-    _codeController.dispose();
     _titleController.dispose();
     _creditsController.dispose();
     _categoryController.dispose();
@@ -70,8 +67,19 @@ class _EditCoursePageState extends State<EditCoursePage> {
       return;
     }
 
+    final courseId = widget.course.id;
+
+    if (courseId == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Gagal memperbarui: ID course tidak ditemukan.'),
+        ),
+      );
+      return;
+    }
+
     final updatedCourse = Course(
-      id: widget.course.id,
+      id: courseId,
       code: widget.course.code,
       title: _titleController.text.trim(),
       credits: int.parse(_creditsController.text.trim()),
@@ -136,7 +144,7 @@ class _EditCoursePageState extends State<EditCoursePage> {
               child: Column(
                 children: [
                   TextFormField(
-                    controller: _codeController,
+                    initialValue: widget.course.code,
                     readOnly: true,
                     decoration: const InputDecoration(
                       labelText: 'Kode Course',
@@ -210,7 +218,6 @@ class _EditCoursePageState extends State<EditCoursePage> {
                       if (value == null || value.trim().isEmpty) {
                         return 'Kategori course wajib diisi.';
                       }
-
                       return null;
                     },
                   ),
