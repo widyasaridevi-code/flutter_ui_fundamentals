@@ -15,16 +15,14 @@ import 'supabase_config.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // 1. Inisialisasi koneksi Supabase.
+  // Supabase tetap diinisialisasi seperti konfigurasi sebelumnya.
   await SupabaseConfig.initialize();
 
-  // 2. Gunakan Supabase sebagai sumber data course.
+  // KASUS A: Gunakan service HTTP untuk pengujian 404.
   final dataSource = CourseSupabaseService();
 
-  // 3. Repository menerima sumber data Supabase.
   final repository = CourseRepository(dataSource);
 
-  // 4. Provider menyediakan CourseState untuk aplikasi.
   runApp(
     ChangeNotifierProvider(
       create: (_) => CourseState(

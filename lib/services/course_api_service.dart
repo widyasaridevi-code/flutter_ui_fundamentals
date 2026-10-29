@@ -14,36 +14,46 @@ class CourseApiService implements CourseDataSource {
 
   @override
   Future<List<Course>> getCourses() async {
-    final response = await http.get(
-      Uri.parse('$baseUrl/posts'),
-    );
+    final uri = Uri.parse('$baseUrl/posts');
 
-    if (response.statusCode < 200 ||
-        response.statusCode >= 300) {
-      throw Exception('Gagal mengambil data course');
-    }
+    try {
+      final response = await http.get(uri);
 
-    final jsonString = await rootBundle.loadString(
-      'assets/data/student_data.json',
-    );
+      if (response.statusCode < 200 ||
+          response.statusCode >= 300) {
+        throw Exception(
+          'HTTP ${response.statusCode}: '
+          'Gagal mengambil data course dari $uri. '
+          'Periksa endpoint dan coba lagi.',
+        );
+      }
 
-    final Map<String, dynamic> jsonData =
-        jsonDecode(jsonString) as Map<String, dynamic>;
-
-    final List<dynamic> coursesJson =
-        jsonData['courses'] as List<dynamic>;
-
-    return coursesJson.map((item) {
-      return Course.fromJson(
-        item as Map<String, dynamic>,
+      final jsonString = await rootBundle.loadString(
+        'assets/data/student_data.json',
       );
-    }).toList();
+
+      final Map<String, dynamic> jsonData =
+          jsonDecode(jsonString) as Map<String, dynamic>;
+
+      final List<dynamic> coursesJson =
+          jsonData['courses'] as List<dynamic>;
+
+      return coursesJson.map((item) {
+        return Course.fromJson(
+          item as Map<String, dynamic>,
+        );
+      }).toList();
+    } catch (e) {
+      rethrow;
+    }
   }
 
   @override
   Future<Course> createCourse(Course course) async {
+    final uri = Uri.parse('$baseUrl/posts');
+
     final response = await http.post(
-      Uri.parse('$baseUrl/posts'),
+      uri,
       headers: {
         'Content-Type': 'application/json; charset=UTF-8',
       },
@@ -52,7 +62,10 @@ class CourseApiService implements CourseDataSource {
 
     if (response.statusCode < 200 ||
         response.statusCode >= 300) {
-      throw Exception('Gagal menambahkan course');
+      throw Exception(
+        'HTTP ${response.statusCode}: '
+        'Gagal menambahkan course dari $uri.',
+      );
     }
 
     final responseData =
@@ -70,8 +83,10 @@ class CourseApiService implements CourseDataSource {
 
   @override
   Future<void> updateCourse(int id, Course course) async {
+    final uri = Uri.parse('$baseUrl/posts/$id');
+
     final response = await http.put(
-      Uri.parse('$baseUrl/posts/$id'),
+      uri,
       headers: {
         'Content-Type': 'application/json; charset=UTF-8',
       },
@@ -80,19 +95,24 @@ class CourseApiService implements CourseDataSource {
 
     if (response.statusCode < 200 ||
         response.statusCode >= 300) {
-      throw Exception('Gagal memperbarui course');
+      throw Exception(
+        'HTTP ${response.statusCode}: '
+        'Gagal memperbarui course pada $uri.',
+      );
     }
   }
 
   @override
   Future<void> deleteCourse(int id) async {
-    final response = await http.delete(
-      Uri.parse('$baseUrl/posts/$id'),
-    );
+    final uri = Uri.parse('$baseUrl/posts/$id');
+    final response = await http.delete(uri);
 
     if (response.statusCode < 200 ||
         response.statusCode >= 300) {
-      throw Exception('Gagal menghapus course');
+      throw Exception(
+        'HTTP ${response.statusCode}: '
+        'Gagal menghapus course pada $uri.',
+      );
     }
   }
 }
