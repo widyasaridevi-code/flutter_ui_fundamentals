@@ -1,136 +1,120 @@
-\# Learning Dashboard Flutter
+# Course Explorer — Flutter
 
+Project praktikum Pemrograman Mobile (PEMOB) menggunakan Flutter untuk mengelola data mata kuliah dengan backend Supabase.
 
+## Identitas Mahasiswa
 
-Project praktikum Widget Flutter Fundamentals.
+- **NIM:** 2415051078
+- **Nama:** Komang Widyasari Devi
 
+## Deskripsi Aplikasi
 
+Course Explorer adalah aplikasi Flutter untuk menampilkan dan mengelola data mata kuliah. Aplikasi menerapkan pemisahan tanggung jawab antara antarmuka pengguna, pengelolaan state, repository, dan layanan sumber data.
 
-\## Identitas Mahasiswa
+Aplikasi terintegrasi dengan Supabase sebagai backend untuk membaca dan mengelola data mata kuliah.
 
+## Fitur
 
+- Menampilkan daftar mata kuliah.
+- Membaca data mata kuliah dari Supabase.
+- Menambahkan data mata kuliah.
+- Memperbarui dan menghapus data mata kuliah sesuai implementasi service.
+- Mengelola state menggunakan Provider dan ChangeNotifier.
+- Menampilkan status loading dan menangani error.
+- Mengelola data favorit.
+- Menggunakan navigasi responsif untuk perangkat mobile dan layar lebih lebar.
+- Memisahkan UI, state management, repository, dan service.
 
-\- NIM: 2415051078
+## Teknologi
 
-\- Nama: Komang Widyasari Devi
+- Flutter dan Dart
+- Material Design 3
+- Provider untuk state management
+- Supabase untuk backend dan database PostgreSQL
+- Git dan GitHub untuk version control
 
+## Arsitektur Aplikasi
 
+Struktur folder utama:
 
-\## Deskripsi
+- `lib/models/`: model data mata kuliah dan pemetaan JSON.
+- `lib/services/`: implementasi akses sumber data, termasuk Supabase.
+- `lib/repositories/`: abstraksi akses data antara Provider dan service.
+- `lib/providers/`: pengelolaan state, data mata kuliah, loading, error, dan favorit.
+- `lib/screens/`: halaman aplikasi dan navigasi.
+- `lib/widgets/`: komponen antarmuka yang dapat digunakan kembali.
 
+### Alur Dependency
 
+`Screens/Widgets → Provider → Repository → Service/Data Source`
 
-Aplikasi Learning Dashboard menampilkan identitas mahasiswa,
+UI tidak mengakses backend secara langsung. Provider mengelola state aplikasi, Repository menjadi perantara akses data, dan Service menangani komunikasi dengan sumber data.
 
-profil, ringkasan materi, dan daftar course dari static JSON.
+## Backend dan Database
 
+Backend menggunakan Supabase dengan tabel `courses` untuk menyimpan data mata kuliah.
 
+Data yang dikelola mencakup kode mata kuliah, judul, jumlah SKS, dan status. Atribut tambahan seperti kategori digunakan apabila tersedia pada model dan skema database.
 
-\## Fitur
+Konfigurasi koneksi Supabase dikelola melalui file konfigurasi aplikasi. Gunakan URL project dan anon/publishable key yang sesuai. Jangan memasukkan `service_role` key atau secret backend ke dalam source code yang dipublikasikan.
 
+## Cara Menjalankan Aplikasi
 
+### Prasyarat
 
-\- MaterialApp dan Scaffold
+- Flutter SDK telah terpasang.
+- Android emulator atau perangkat yang mendukung Flutter tersedia.
+- Project Supabase telah disiapkan dan tabel `courses` tersedia.
 
-\- Profile mahasiswa
+### Langkah Menjalankan
 
-\- Summary card
+1. Clone repository:
 
-\- Collection Dart
+   ```bash
+   git clone https://github.com/widyasaridevi-code/flutter_ui_fundamentals.git
+   ```
 
-\- ListView
+2. Masuk ke folder project:
 
-\- StatefulWidget dan setState
+   ```bash
+   cd flutter_ui_fundamentals
+   ```
 
-\- Static JSON
+3. Instal dependency:
 
-\- Future dan async/await
+   ```bash
+   flutter pub get
+   ```
 
-\- FutureBuilder
+4. Pastikan konfigurasi Supabase tersedia dan sesuai dengan project yang digunakan.
 
-\- Loading dan error state
+5. Jalankan pemeriksaan kode:
 
-\- Reusable widget/function
+   ```bash
+   flutter analyze
+   ```
 
-\- Git version control
+6. Jalankan aplikasi:
 
+   ```bash
+   flutter run
+   ```
 
+## Version Control
 
-\## Data
+Pengembangan aplikasi dicatat menggunakan Git dengan commit terpisah untuk tahapan praktikum. Repository sumber tersedia di:
 
+https://github.com/widyasaridevi-code/flutter_ui_fundamentals
 
+## Catatan Keamanan
 
-Data course disimpan pada:
+- Jangan commit password, token rahasia, atau Supabase `service_role` key.
+- Atur Row Level Security (RLS) dan policy database sesuai kebutuhan aplikasi.
+- Gunakan key yang memang diperuntukkan bagi aplikasi klien.
 
+## Penutup
 
+Project ini merupakan hasil praktikum Flutter yang mencakup pembuatan UI, pengelolaan state, pemisahan arsitektur, integrasi backend, serta penggunaan Git dan GitHub.
 
-assets/data/student\_data.json
-
-
-
-Aplikasi menggunakan data JSON untuk menampilkan daftar mata kuliah,
-
-kode course, jumlah SKS, status, dan kategori.
-
-
-
-\## Student
-
-
-
-NIM: 2415051078
-
-Nama: Komang Widyasari Devi
-
-
-## Struktur Folder dan Tanggung Jawab
-
-- `lib/models/`: menyimpan model data, seperti Course, serta parsing JSON ke object.
-- `lib/services/`: menangani sumber data, seperti membaca file JSON menggunakan rootBundle.
-- `lib/repositories/`: menjadi lapisan abstraksi antara Provider dan Service.
-- `lib/providers/`: mengelola shared state, data course, loading, error, dan favorites.
-- `lib/screens/`: berisi halaman aplikasi dan navigasi antarlayar.
-- `lib/widgets/`: berisi komponen UI yang dapat digunakan kembali.
-
-## Alur Dependency
-
-Screens/Widgets -> Provider -> Repository -> Service/Data Source.
-
-UI tidak membaca JSON secara langsung. Provider mengelola state, Repository menjadi perantara akses data, dan Service menangani detail sumber data.
-
-## Tahap 1 — Membaca REST Endpoint dan JSON
-
-### Informasi Endpoint
-
-- **URL:** https://jsonplaceholder.typicode.com/posts/1
-- **HTTP Method:** GET
-- **Status Code:** 200 OK
-- **Resource:** posts
-- **Format Response:** JSON
-
-### Struktur JSON
-
-Data yang diterima memiliki field berikut:
-
-1. `userId`: ID pengguna yang membuat post.
-2. `id`: ID post.
-3. `title`: Judul post.
-4. `body`: Isi post.
-
-### Catatan
-
-Endpoint REST digunakan untuk mengakses resource melalui URL. Metode GET digunakan untuk mengambil data dari server. Respons berhasil ditandai dengan status code 200 OK. Data yang diterima dari endpoint ini berbentuk JSON.
-
-JSONPlaceholder merupakan API latihan. Data write pada layanan ini disimulasikan dan tidak disimpan secara permanen.
-
-
-## Struktur Folder dan Tanggung Jawab
-
-- `lib/models/`: Menyimpan model data Course.
-- `lib/services/`: Mengambil data dari Supabase.
-- `lib/repositories/`: Menjadi perantara Provider dan Service.
-- `lib/providers/`: Mengelola state, loading, error, dan favorites.
-- `lib/screens/`: Menampilkan halaman aplikasi.
-- `lib/widgets/`: Menyimpan komponen UI yang dapat digunakan kembali.
-
-Arah dependency: Screen/Widget → Provider → Repository → Service/Data Source.
+**Mahasiswa:** Komang Widyasari Devi  
+**NIM:** 2415051078
