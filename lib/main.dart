@@ -1,173 +1,51 @@
 
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
-import 'providers/course_state.dart';
-import 'screens/home_page.dart';
-import 'screens/courses_page.dart';
-import 'screens/favorites_page.dart';
-import 'screens/profile_page.dart';
-import 'screens/feedback_page.dart';
-import 'services/course_supabase_service.dart';
-import 'repositories/course_repository.dart';
 import 'supabase_config.dart';
+import 'screens/login_page.dart';
+import 'screens/kos_home_page.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Supabase tetap diinisialisasi seperti konfigurasi sebelumnya.
   await SupabaseConfig.initialize();
 
-  // KASUS A: Gunakan service HTTP untuk pengujian 404.
-  final dataSource = CourseSupabaseService();
-
-  final repository = CourseRepository(dataSource);
-
-  runApp(
-    ChangeNotifierProvider(
-      create: (_) => CourseState(
-        repository: repository,
-      )..loadCourses(),
-      child: const MyApp(),
-    ),
-  );
+  runApp(const KosFinderApp());
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class KosFinderApp extends StatelessWidget {
+  const KosFinderApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Course Explorer',
+      title: 'KosFinder',
       theme: ThemeData(
         useMaterial3: true,
-        colorSchemeSeed: Colors.indigo,
+        colorSchemeSeed: const Color(0xFF4056A1),
       ),
-      home: const ResponsiveShell(),
+      home: const AuthGate(),
     );
   }
 }
 
-class ResponsiveShell extends StatefulWidget {
-  const ResponsiveShell({super.key});
-
-  @override
-  State<ResponsiveShell> createState() =>
-      _ResponsiveShellState();
-}
-
-class _ResponsiveShellState extends State<ResponsiveShell> {
-  int selectedIndex = 0;
-
-  final List<Widget> pages = const [
-    HomePage(),
-    CoursesPage(),
-    FavoritesPage(),
-    ProfilePage(),
-    FeedbackPage(),
-  ];
-
-  Widget buildNavigationBar() {
-    return NavigationBar(
-      selectedIndex: selectedIndex,
-      onDestinationSelected: (index) {
-        setState(() {
-          selectedIndex = index;
-        });
-      },
-      destinations: const [
-        NavigationDestination(
-          icon: Icon(Icons.home_outlined),
-          selectedIcon: Icon(Icons.home),
-          label: 'Home',
-        ),
-        NavigationDestination(
-          icon: Icon(Icons.school_outlined),
-          selectedIcon: Icon(Icons.school),
-          label: 'Courses',
-        ),
-        NavigationDestination(
-          icon: Icon(Icons.favorite_border),
-          selectedIcon: Icon(Icons.favorite),
-          label: 'Favorites',
-        ),
-        NavigationDestination(
-          icon: Icon(Icons.person_outline),
-          selectedIcon: Icon(Icons.person),
-          label: 'Profile',
-        ),
-        NavigationDestination(
-          icon: Icon(Icons.feedback_outlined),
-          selectedIcon: Icon(Icons.feedback),
-          label: 'Feedback',
-        ),
-      ],
-    );
-  }
-
-  Widget buildNavigationRail() {
-    return NavigationRail(
-      selectedIndex: selectedIndex,
-      onDestinationSelected: (index) {
-        setState(() {
-          selectedIndex = index;
-        });
-      },
-      labelType: NavigationRailLabelType.all,
-      destinations: const [
-        NavigationRailDestination(
-          icon: Icon(Icons.home_outlined),
-          selectedIcon: Icon(Icons.home),
-          label: Text('Home'),
-        ),
-        NavigationRailDestination(
-          icon: Icon(Icons.school_outlined),
-          selectedIcon: Icon(Icons.school),
-          label: Text('Courses'),
-        ),
-        NavigationRailDestination(
-          icon: Icon(Icons.favorite_border),
-          selectedIcon: Icon(Icons.favorite),
-          label: Text('Favorites'),
-        ),
-        NavigationRailDestination(
-          icon: Icon(Icons.person_outline),
-          selectedIcon: Icon(Icons.person),
-          label: Text('Profile'),
-        ),
-        NavigationRailDestination(
-          icon: Icon(Icons.feedback_outlined),
-          selectedIcon: Icon(Icons.feedback),
-          label: Text('Feedback'),
-        ),
-      ],
-    );
-  }
+class AuthGate extends StatelessWidget {
+  const AuthGate({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        if (constraints.maxWidth < 840) {
-          return Scaffold(
-            body: pages[selectedIndex],
-            bottomNavigationBar: buildNavigationBar(),
-          );
+    return StreamBuilder<AuthState>(
+      stream: Supabase.instance.client.auth.onAuthStateChange,
+      builder: (context, snapshot) {
+        final session = Supabase.instance.client.auth.currentSession;
+
+        if (session != null) {
+          return const KosHomePage();
         }
 
-        return Scaffold(
-          body: Row(
-            children: [
-              buildNavigationRail(),
-              const VerticalDivider(width: 1),
-              Expanded(
-                child: pages[selectedIndex],
-              ),
-            ],
-          ),
-        );
+        return const LoginPage();
       },
     );
   }
