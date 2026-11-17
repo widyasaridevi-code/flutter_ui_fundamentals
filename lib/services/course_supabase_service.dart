@@ -39,12 +39,9 @@ class CourseSupabaseService implements CourseDataSource {
     );
   }
 
-  // TAHAP 14: UPDATE course berdasarkan ID
   @override
   Future<void> updateCourse(int id, Course course) async {
     final payload = course.toJson();
-
-    // ID tidak perlu diubah karena dipakai untuk mencari baris.
     payload.remove('id');
 
     await supabase
@@ -55,6 +52,9 @@ class CourseSupabaseService implements CourseDataSource {
 
   @override
   Future<void> deleteCourse(int id) async {
-    throw UnimplementedError();
+    await supabase
+        .from('courses')
+        .delete()
+        .eq('id', id);
   }
 }
