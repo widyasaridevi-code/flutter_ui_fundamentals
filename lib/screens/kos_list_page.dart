@@ -46,6 +46,37 @@ class _KosListPageState extends State<KosListPage> {
     _refreshData();
   }
 
+  Future<void> _ujiDeleteRLS() async {
+    try {
+      final berhasil =
+          await _kosService.testDeleteAccess(3);
+
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            berhasil
+                ? 'PERHATIAN: DELETE berhasil! Data percobaan terhapus.'
+                : 'Berhasil ditolak RLS. Data Owner terlindungi.',
+          ),
+        ),
+      );
+
+      if (berhasil) {
+        _refreshData();
+      }
+    } catch (e) {
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Pengujian gagal: $e'),
+        ),
+      );
+    }
+  }
+
   Future<void> _logout() async {
     try {
       await _kosService.supabase.auth.signOut();
@@ -80,7 +111,8 @@ class _KosListPageState extends State<KosListPage> {
     return FutureBuilder<UserProfile?>(
       future: _profileFuture,
       builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
+        if (snapshot.connectionState ==
+            ConnectionState.waiting) {
           return const Card(
             child: Padding(
               padding: EdgeInsets.all(16),
@@ -164,6 +196,11 @@ class _KosListPageState extends State<KosListPage> {
             tooltip: 'Refresh',
           ),
           IconButton(
+            onPressed: _ujiDeleteRLS,
+            icon: const Icon(Icons.security),
+            tooltip: 'Uji DELETE RLS',
+          ),
+          IconButton(
             onPressed: _logout,
             icon: const Icon(Icons.logout),
             tooltip: 'Logout',
@@ -173,7 +210,8 @@ class _KosListPageState extends State<KosListPage> {
       body: FutureBuilder<List<KosModel>>(
         future: _kosFuture,
         builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
+          if (snapshot.connectionState ==
+              ConnectionState.waiting) {
             return const Center(
               child: CircularProgressIndicator(),
             );
