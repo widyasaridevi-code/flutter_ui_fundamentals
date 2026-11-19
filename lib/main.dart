@@ -1,8 +1,10 @@
 
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:firebase_core/firebase_core.dart';
 
 import 'supabase_config.dart';
+import 'firebase_options.dart';
 import 'screens/login_page.dart';
 import 'screens/kos_home_page.dart';
 
@@ -10,6 +12,10 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   await SupabaseConfig.initialize();
+
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
 
   runApp(const KosFinderApp());
 }

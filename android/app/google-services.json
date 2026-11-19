@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "390090749363",
+    "project_id": "kosfinder-komang-2026-11-1f24f",
+    "storage_bucket": "kosfinder-komang-2026-11-1f24f.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:390090749363:android:704be1730c42a4ffb387c6",
+        "android_client_info": {
+          "package_name": "com.example.flutter_ui_fundamentals"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCOMyiztN1Dq0KiPv4nYzt1ize5YuX8448"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
