@@ -2,9 +2,11 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 
 import 'supabase_config.dart';
 import 'firebase_options.dart';
+import 'services/notification_service.dart';
 import 'screens/login_page.dart';
 import 'screens/kos_home_page.dart';
 
@@ -16,6 +18,12 @@ Future<void> main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+
+  FirebaseMessaging.onBackgroundMessage(
+    firebaseMessagingBackgroundHandler,
+  );
+
+  await NotificationService.instance.init();
 
   runApp(const KosFinderApp());
 }
