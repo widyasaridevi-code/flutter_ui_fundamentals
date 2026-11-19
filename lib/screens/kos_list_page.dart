@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../models/kos_model.dart';
 import '../services/kos_service.dart';
 import '../services/profile_service.dart';
+import '../widgets/role_guard.dart';
 import 'add_kos_page.dart';
 
 class KosListPage extends StatefulWidget {
@@ -134,7 +135,9 @@ class _KosListPageState extends State<KosListPage> {
                   ],
                 ),
                 const Divider(height: 24),
-                Text('Nama: ${profile.name.isEmpty ? '-' : profile.name}'),
+                Text(
+                  'Nama: ${profile.name.isEmpty ? '-' : profile.name}',
+                ),
                 const SizedBox(height: 8),
                 Text('Email: ${profile.email}'),
                 const SizedBox(height: 8),
@@ -264,12 +267,15 @@ class _KosListPageState extends State<KosListPage> {
           );
         },
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: _bukaTambahKos,
-        backgroundColor: const Color(0xFF4056A1),
-        foregroundColor: Colors.white,
-        icon: const Icon(Icons.add),
-        label: const Text('Tambah Kos'),
+      floatingActionButton: RoleGuard(
+        allowedRoles: const ['owner', 'admin'],
+        child: FloatingActionButton.extended(
+          onPressed: _bukaTambahKos,
+          backgroundColor: const Color(0xFF4056A1),
+          foregroundColor: Colors.white,
+          icon: const Icon(Icons.add),
+          label: const Text('Tambah Kos'),
+        ),
       ),
     );
   }
