@@ -15,6 +15,7 @@ class _RegisterPageState extends State<RegisterPage> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
 
+  String _selectedRole = 'seeker';
   bool _isLoading = false;
 
   Future<void> _register() async {
@@ -42,6 +43,8 @@ class _RegisterPageState extends State<RegisterPage> {
       await _authService.signUp(
         email: _emailController.text.trim(),
         password: _passwordController.text,
+        name: _nameController.text.trim(),
+        role: _selectedRole,
       );
 
       if (!mounted) return;
@@ -55,11 +58,14 @@ class _RegisterPageState extends State<RegisterPage> {
       Navigator.pop(context);
     } catch (e) {
       if (!mounted) return;
+
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Registrasi gagal: $e')),
       );
     } finally {
-      if (mounted) setState(() => _isLoading = false);
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
     }
   }
 
@@ -116,6 +122,32 @@ class _RegisterPageState extends State<RegisterPage> {
                 ),
               ),
               const SizedBox(height: 16),
+              DropdownButtonFormField<String>(
+                initialValue: _selectedRole,
+                decoration: const InputDecoration(
+                  labelText: 'Daftar sebagai',
+                  prefixIcon: Icon(Icons.badge_outlined),
+                  border: OutlineInputBorder(),
+                ),
+                items: const [
+                  DropdownMenuItem(
+                    value: 'seeker',
+                    child: Text('Pencari Kos'),
+                  ),
+                  DropdownMenuItem(
+                    value: 'owner',
+                    child: Text('Pemilik Kos'),
+                  ),
+                ],
+                onChanged: _isLoading
+                    ? null
+                    : (value) {
+                        if (value != null) {
+                          setState(() => _selectedRole = value);
+                        }
+                      },
+              ),
+              const SizedBox(height: 16),
               TextField(
                 controller: _passwordController,
                 obscureText: true,
@@ -134,7 +166,9 @@ class _RegisterPageState extends State<RegisterPage> {
                   padding: const EdgeInsets.symmetric(vertical: 16),
                 ),
                 child: _isLoading
-                    ? const CircularProgressIndicator(color: Colors.white)
+                    ? const CircularProgressIndicator(
+                        color: Colors.white,
+                      )
                     : const Text('Daftar Sekarang'),
               ),
             ],
